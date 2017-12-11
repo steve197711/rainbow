@@ -1,0 +1,318 @@
+**********part$ 0010. 查询当前逻辑库所跳过同步的对象**********
+**********Order by owner, name, statement_opt**********
+
+ERROR|OWNER               | CT_NAME|NAME                                    |OBJECT_TYPE                             |STATEMENT_OPT                                               |US|ES|PROCEDURE
+=====|====================|========|========================================|========================================|============================================================|==|==|==================================================
+N    |ACCOUNTING          |       3|IDX_DEAL_EXT_INSTANCE_ID                |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |ACCOUNTING          |       3|PK_DEAL_EXT                             |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |ACCOUNTING          |       3|PK_T_BPS_REQUEST_LOG_ID                 |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |ANONYMOUS           |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |APPQOSSYS           |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |BGW                 |       6|BP_ACCTHISTRANSINFO                     |TABLE                                   |DML                                                         |Y |  |
+N    |BGW                 |       6|BP_ACCTHISTRANSINFO                     |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |BGW                 |       6|BP_ACCTHISTRANSINFO_N                   |TABLE                                   |DML                                                         |N |  |
+N    |BGW                 |       6|BP_ACCTHISTRANSINFO_N                   |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |BGW                 |       6|BP_BANKINSTRINFO                        |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |BGW                 |       6|IDX_BP_ACCHISTRANS_ACCOUNTID1           |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |BGW                 |       6|IDX_BP_ACCHISTRAN_AMOUNT1               |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |BGW                 |       6|UK_BP_ACCHISTRAN                        |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |BILL                |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |BILL                |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |BILLQUERY           |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |CDCPUB              |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |CDCPUB              |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |CDCSUB              |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |CDCSUB              |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBACGZHANG          |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBACGZHANG          |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBADAVID            |       1|SQL_PLAN_1215                           |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAFELIX            |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAFELIX            |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAHUIFANG          |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAHUIFANG          |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAJASON            |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAJASON            |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAJIEBIN           |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAJIEBIN           |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPANQIAN          |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPANQIAN          |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|DIFF_MEMBER_2015                        |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|DIFF_MEMBER_2015                        |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|DIFF_MEMBER_2016                        |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|DIFF_MEMBER_2016                        |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|DIFF_MEMBER_2017                        |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|DIFF_MEMBER_2017                        |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|DIFF_MEMBER_2018                        |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|DIFF_MEMBER_2018                        |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|DIFF_MEM_2015                           |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|DIFF_MEM_2015                           |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|DIFF_MEM_2016                           |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|DIFF_MEM_2016                           |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|DIFF_MEM_2017                           |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|DIFF_MEM_2017                           |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|DIFF_MEM_2018                           |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|DIFF_MEM_2018                           |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|FIX_MEMBER_2015                         |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|FIX_MEMBER_2015                         |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|FIX_MEMBER_2016                         |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|FIX_MEMBER_2016                         |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|FIX_MEMBER_2017                         |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|FIX_MEMBER_2017                         |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|FIX_MEMBER_2018                         |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|FIX_MEMBER_2018                         |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|FIX_MEM_2015                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|FIX_MEM_2015                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|FIX_MEM_2016                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|FIX_MEM_2016                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|FIX_MEM_2017                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|FIX_MEM_2017                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|FIX_MEM_2018                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|FIX_MEM_2018                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2014                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2014                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2015                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2015                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2016                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2016                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2017                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2017                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2018                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_B2018                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_S2015                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_S2015                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_S2016                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_S2016                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_S2017                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_S2017                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_S2018                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBERIDENTITY_S2018                    |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBER_B2015                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBER_B2015                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBER_B2016                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBER_B2016                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBER_B2017                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBER_B2017                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBER_B2018                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBER_B2018                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBER_S2015                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBER_S2015                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBER_S2016                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBER_S2016                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBER_S2017                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBER_S2017                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|MEMBER_S2018                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      34|MEMBER_S2018                            |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      34|T1                                      |TABLE                                   |DML                                                         |Y |  |
+N    |DBASONIA            |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBASONIA            |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBASTEVE            |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBASTEVE            |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBSNMP              |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |DIP                 |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |DIRECTPAY           |       1|T_DPS_FRONTPROCESSOR                    |TABLE                                   |DML                                                         |Y |  |
+N    |DMUSER              |       2|TMP_T_BANKCARD_LIB                      |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DMUSER              |       2|TMP_T_BANKCARD_LIB                      |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DMUSER              |       2|T_BANKCARD_LIB                          |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DMUSER              |       2|T_BANKCARD_LIB                          |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DUMPOFDBA           |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DUMPOFDBA           |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |EBPP                |       6|EBILL_ITEM_ORDER_BAR_CODE               |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |EBPP                |       6|EBILL_ITEM_ORDER_PAYMENTID              |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |EBPP                |       6|IDX_EBILL_ITEM_ORDER_EBILLID            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |EBPP                |       6|INDEX_EBILL_PAYMENT_ORDER               |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |EBPP                |       6|PK_EBILL_ITEM_ORDER                     |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |EBPP                |       6|PK_EBILL_PAYMENT_ORDER                  |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |EXFSYS              |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |FUNDIN              |       2|BANKQUERYLOG                            |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |FUNDIN              |       2|PK_BANKQUERYLOG                         |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |FUNDOUT             |       2|IDX_ALPO_TE_STATUS                      |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |FUNDOUT             |       2|OSFPVSDATAINTERACTIONLOG_NEW            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |GATEWAY             |       3|GATEWAYBACKENDPAYINTERFACELOG           |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |GATEWAY             |       3|GATEWAYORDERRECEIPT                     |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |GATEWAY             |       3|RISKTRANSATION                          |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |JASON               |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |JASON               |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |MEMBERACCT          |       1|ACCOUNT                                 |TABLE                                   |DML                                                         |Y |  |
+N    |MEMBERACCT          |       1|ACCOUNT                                 |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |MEMBERINFO          |       1|T_PIC_TEM                               |TABLE                                   |DML                                                         |Y |  |
+N    |MKTMONITOR          |       1|TBDADACCESS                             |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |OGG                 |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |OGG                 |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |ORACLE_OCM          |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |OUTLN               |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |PRODUCTMON          |       1|DBA_DATAFIXLOG                          |TABLE                                   |DML                                                         |Y |  |
+N    |PSE                 |       7|CRPATCHLOG                              |TABLE                                   |DML                                                         |Y |  |
+N    |PSE                 |       7|CRPATCHLOG                              |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |PSE                 |       7|PSEPATCH                                |TABLE                                   |DML                                                         |Y |  |
+N    |PSE                 |       7|PSEPATCH                                |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |PSE                 |       7|T_PSE_ENCRYPT_KEY                       |TABLE                                   |DML                                                         |Y |  |
+N    |PSE                 |       7|T_PSE_ENCRYPT_KEY                       |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |PSE                 |       7|T_PSE_EN_CHANGE_EVENT_LOG               |TABLE                                   |DML                                                         |Y |  |
+N    |PSE                 |       7|T_PSE_EN_CHANGE_EVENT_LOG               |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |PSE                 |       7|T_PSE_EN_PRODUCT_KEY                    |TABLE                                   |DML                                                         |Y |  |
+N    |PSE                 |       7|T_PSE_EN_PRODUCT_KEY                    |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |PSE                 |       7|T_PSE_EN_SIGNUP_PIN_INFO                |TABLE                                   |DML                                                         |Y |  |
+N    |PSE                 |       7|T_PSE_EN_SIGNUP_PIN_INFO                |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |PSE                 |       7|V_USER_LOCK                             |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |PSE                 |       7|V_USER_LOCK                             |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|ACCTDIARYENTRY                          |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|ACCT_ATTRIB                             |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|ACCT_ATTRIB                             |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|ACCT_TX_REQUEST                         |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|BOQUERYLOG                              |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|BORECEIVEDLOG                           |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|BORECEIVEDLOG_PK                        |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|BOSENDLOG                               |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|BOSENTLOG_PK                            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|CRET_PREFIX_0326                        |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |SEASHELL            |      63|DEAL                                    |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|DEAL_IDX_ORDERSEQID                     |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|ENTRY                                   |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|ENTRY_CHANGE                            |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |SEASHELL            |      63|GATEWAYRECEIVELOG                       |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|GATEWAYRECEIVELOG_OLD                   |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|GATEWAYRETURNLOG                        |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IBR_NOTIFYLOG_NEW                       |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|IBR_SOCKET_ECHO_MESSAGE_NEW             |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|IDX_ACCTDIARYENTRY_CREATIONDAT          |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_GATEWAYRETURNLOG_ORDERID            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_MEMBERALERT_MEMBERCODE              |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_OSFAPPLYORDER_BATCH_ID              |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_OSFAPPLYORDER_ORDER_NO              |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_PAYMENTORDER_LASTUPDATETIM          |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_PAYMENTORDER_ORGORDERID             |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_PAYMENTORDER_PAYEEIDENTITY          |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_PAYMENTORDER_RESEQ                  |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_WITHDRAWORDER_ORDERSEQID            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_WITHDRAWWORKORDER_ITF_ID            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_WITHDRAWWORKORDER_REDATE            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_WITHDRAWWORKO_NEW_DEALID            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IDX_WITHDRAWWORK_ORDERSEQID1            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IND_OSFAPPLYORDER_MEMCODE               |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|IND_OSFAPPLYORDER_POSNO1                |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|INTRALOG_N                              |TABLE                                   |DML                                                         |N |  |
+N    |SEASHELL            |      63|MEMBER                                  |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|MEMBER                                  |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|MEMBERIDENTITY                          |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|MEMBERIDENTITY                          |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|MEMBER_0327                             |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |SEASHELL            |      63|NOTIFICATIONLOG_PK                      |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|OSFAPPLYORDER                           |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|OSFAPPLYORDER_N                         |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|OSFAPPLYORDER_N                         |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PASSWORDCHANGEEVENT                     |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|PASSWORDCHANGEEVENT                     |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PAYMENTORDER                            |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PAYMENT_ORDER_CHANGE                    |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |SEASHELL            |      63|PK_ACCDIARYENTRY                        |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_ACCT_TX_REQUEST                      |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_BCCLOG                               |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_DEAL                                 |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_GATEWAYORDER                         |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_GATEWAYRECIEVELOG_NEW                |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_GATEWAYRETURNLOG                     |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_MEMBERALERT                          |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_PAYMENTORDER                         |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_PROMOTION_ID                         |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_WITHDRAWORDER                        |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PK_WITHDRAWWORKORDER_NEW                |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|PROMOTIONCAMPAIGN_ORDERSEQID            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|SMSNOTIFICATIONLOG                      |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|TMP_T_BANKCARD_LIB                      |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|TMP_T_BANKCARD_LIB                      |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|T_BANKCARD_LIB_0903                     |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELL            |      63|UK_UNIQUEORDERKEY                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|WITHDRAWWORKORDER_BATCHID               |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELL            |      63|XMLDATA                                 |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|AIR_ALL_ORDER                           |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|AIR_ALL_ORDER                           |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|ALL_ORDER                               |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|ALL_ORDER                               |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|APP_BALANCE_DETAIL_TEMP                 |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|APP_BALANCE_DETAIL_TEMP                 |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|DT_COMMON                               |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|DT_COMMON                               |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|DT_PAYMENTORDER                         |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|DT_PAYMENTORDER                         |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|GATEWAY_REFUND                          |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|GATEWAY_REFUND                          |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MRS_BALANCE                             |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MRS_BALANCE                             |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGATEWAY_PAYERPAYEEINFO                |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGATEWAY_PAYERPAYEEINFO                |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGATEWAY_PAYMETHOD                     |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGATEWAY_PAYMETHOD                     |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY                              |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY                              |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_CLEARTXID                    |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_CLEARTXID                    |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_MEMBERCODE                   |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_MEMBERCODE                   |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_ORDERID                      |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_ORDERID                      |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_PAYEEFEE                     |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_PAYEEFEE                     |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_PAYERFEE                     |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_PAYERFEE                     |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_PAYMENTORDER                 |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_PAYMENTORDER                 |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_RELATEDORDERID               |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_RELATEDORDERID               |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_TRADER                       |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|MSGGATEWAY_TRADER                       |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|PK_GATEWAY_REFUND_ID                    |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SEQ_APP_BALANCE_DETAIL_TEMP             |SEQUENCE                                |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SEQ_APP_BALANCE_DETAIL_TEMP             |SEQUENCE                                |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SEQ_MRS_GATEWAY_REFUND                  |SEQUENCE                                |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SEQ_MRS_GATEWAY_REFUND                  |SEQUENCE                                |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SEQ_MRS_WITHDRAW_PAYTOBANK              |SEQUENCE                                |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SEQ_MRS_WITHDRAW_PAYTOBANK              |SEQUENCE                                |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SEQ_MSGGATEWAY_ID                       |SEQUENCE                                |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SEQ_MSGGATEWAY_ID                       |SEQUENCE                                |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SUM_ENTRY                               |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SUM_ENTRY                               |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SUM_ENTRY_EXT                           |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|SUM_ENTRY_EXT                           |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLDOWNTXN     |      26|WITHDRAW_PAYTOBANK                      |TABLE                                   |DML                                                         |Y |  |
+N    |SEASHELLDOWNTXN     |      26|WITHDRAW_PAYTOBANK                      |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLLOG         |       2|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |SEASHELLLOG         |       2|PK_ACCOUTINGEXCEPTIONLOG                |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SYS                 |       4|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |SYS                 |       4|JOB$                                    |TABLE                                   |DML                                                         |Y |  |
+N    |SYS                 |       4|VERIFY_FUNCTION                         |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |SYS                 |       4|VERIFY_FUNCTION_11G                     |FUNCTION                                |SCHEMA_DDL                                                  |Y |  |
+N    |SYSTEM              |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |SZX                 |      25|ACCOUNTING_LOG                          |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|ACCOUNTING_REQUEST                      |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|ACCOUNTING_REQUEST_PK                   |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|GATEWAYREQUES                           |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|GATEWAYREQUEST                          |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|IDX_ACC_REQUEST_ORDERID_LAST            |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|IDX_DEALREQUEST_SEQNO                   |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|IDX_DEALRESP_REQUESTID                  |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|IDX_FULFILL_SALESORD                    |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|IDX_GATEWAYPAYORDER_OID_MBCODE          |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|IDX_GATEWAYPAYORDER_ORDERID             |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|IDX_GATEWAYPAYORDER_PCHORDERID          |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|IDX_PURCHASEORDER_CARDPASSWORD          |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|PK_CARDINFO                             |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|PK_DEALREQUEST_P                        |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|PK_DEALRESPONSE                         |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|PK_FULFILLMENTORDER                     |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|PK_GATEWAYPAYORDER                      |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|PK_GATEWAYREQUEST                       |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|PK_GATEWAYRESPONSE                      |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|PURCHASEORDER_CARDNO                    |INDEX                                   |SCHEMA_DDL                                                  |Y |  |
+N    |SZX                 |      25|SYSCOMMREQUEST                          |TABLE                                   |DML                                                         |Y |  |
+N    |SZX                 |      25|SYSCOMMREQUEST_NEW                      |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |SZX                 |      25|SYSCOMMRESPONSE                         |TABLE                                   |DML                                                         |Y |  |
+N    |SZX                 |      25|SYSCOMMRESPONSE_NEW                     |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |XDB                 |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |XS$NULL             |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |                    |       0|                                        |NOT Existed in LDG!!                    |ALTER TABLESPACE                                            |Y |  |SYS.AANDLE_TBS_DDL
+N    |                    |       0|                                        |NOT Existed in LDG!!                    |TABLESPACE                                                  |Y |  |
+
+308 rows selected.
+
+
+

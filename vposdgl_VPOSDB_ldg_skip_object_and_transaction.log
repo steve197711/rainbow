@@ -1,0 +1,90 @@
+**********part$ 0010. 查询当前逻辑库所跳过同步的对象**********
+**********Order by owner, name, statement_opt**********
+
+ERROR|OWNER               | CT_NAME|NAME                                    |OBJECT_TYPE                             |STATEMENT_OPT                                               |US|ES|PROCEDURE
+=====|====================|========|========================================|========================================|============================================================|==|==|==================================================
+N    |ANONYMOUS           |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |APPQOSSYS           |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |CPSTAIS             |       1|T_TXN_HISTORY                           |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |DBAHUIFANG          |       1|TB_PK                                   |TABLE                                   |DML                                                         |Y |  |
+N    |DBAPETER            |      15|SESSION_0810                            |TABLE                                   |DML                                                         |Y |  |
+N    |DBAPETER            |      15|SESSION_0810                            |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_FEE_CONTRACT                          |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_FEE_CONTRACT                          |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_FEE_CONTRACT_PARA                     |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_FEE_CONTRACT_PARA                     |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_MERCH_FIN_CTRL                        |TABLE                                   |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_MERCH_FIN_CTRL                        |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL                              |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL                              |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP                         |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP                         |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP01                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP01                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP02                       |TABLE                                   |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP02                       |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP03                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP03                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP04                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP04                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP05                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP05                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP06                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP06                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP07                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP07                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP08                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TEMP08                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TMP922                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBAPETER            |      15|T_TXN_CTRL_TMP922                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBASHENGJIE         |       2|T_TXN_CTRL                              |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBASHENGJIE         |       2|T_TXN_CTRL                              |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBASHENGJIE         |       2|T_TXN_CTRL_TMP922                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBASHENGJIE         |       2|T_TXN_CTRL_TMP922                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBASTEVE            |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |DBASTEVE            |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |DBSNMP              |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |DIP                 |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |EXFSYS              |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |MASPOS              |      15|T_BANK_SIGN_INFO_CMB                    |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BANK_SIGN_INFO_CMB                    |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |MASPOS              |      15|T_BK_ACCT_CODE                          |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_ACCT_CODE_HISTORY                  |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_APPLY                              |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_CONFIG                             |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_PE_DEAL                            |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_PE_DEAL_EXT                        |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_PE_ENTRY                           |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_PE_PAYMENT_ORDER                   |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_RECORD                             |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_BK_RECORD_REF                         |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_PCI_INFO_TMP_PINAN                    |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_PCI_INFO_TMP_PINAN                    |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |MASPOS              |      15|T_READ_BANK_CIB_0809                    |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_READ_BANK_CIB_0809                    |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |MASPOS              |      15|T_STL_LIST                              |TABLE                                   |DML                                                         |Y |  |
+N    |MASPOS              |      15|T_STL_LIST                              |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |MASPOS              |      15|T_TXN_CTRL                              |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |NBIZSVC             |       1|T_SVC_CARD_BALANCE_REPORT               |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |OGG                 |       3|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |OGG                 |       3|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |OGG                 |       3|GGSCHKPT                                |TABLE                                   |DML                                                         |Y |  |
+N    |OGG                 |       3|GGSCHKPT                                |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |OGG                 |       3|GGSCHKPT_LOX                            |TABLE                                   |SCHEMA_DDL                                                  |Y |  |
+N    |ORACLE_OCM          |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |OUTLN               |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |SOE                 |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |SOE                 |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |SYS                 |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |SYSTEM              |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |VPDADMIN            |       1|%                                       |NOT Existed in LDG!!                    |DML                                                         |Y |  |
+N    |VPDADMIN            |       1|%                                       |NOT Existed in LDG!!                    |SCHEMA_DDL                                                  |Y |  |
+N    |WMSYS               |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |XDB                 |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |XS$NULL             |       1|%                                       |NOT Existed in LDG!!                    |INTERNAL SCHEMA                                             |N |  |
+N    |                    |       0|                                        |NOT Existed in LDG!!                    |ALTER TABLESPACE                                            |Y |  |SYS.AANDLE_TBS_DDL
+
+80 rows selected.
+
+
+

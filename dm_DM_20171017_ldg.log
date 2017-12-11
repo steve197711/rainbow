@@ -1,0 +1,275 @@
+**********part$ 0000. 输出逻辑库常用语句**********
+
+STATEMENT
+====================================================================================
+Alter Database Stop Logical Standby Apply;
+
+
+STATEMENT
+==========================================================================================================
+Alter Database Start Logical Standby Apply Immediate;
+
+**********part$ 0010. 查询当前逻辑apply状态**********
+
+PRIMARY_DBID| SESSION_ID|REALTIME_APPLY |STATE
+============|===========|===============|==============================
+  1672191889|          1|Y              |IDLE
+
+
+
+**********part$ 0020. 查询v$dataguard_status视图**********
+
+NAME                          |VALUE               |UNIT                          |TIME_COMPUTED                 |DATUM_TIME
+==============================|====================|==============================|==============================|==============================
+apply finish time             |                    |day(2) to second(3) interval  |10/17/2017 21:45:22           |
+apply lag                     |+00 00:00:01        |day(2) to second(0) interval  |10/17/2017 21:45:22           |10/17/2017 21:45:21
+estimated startup time        |23                  |second                        |10/17/2017 21:45:22           |
+transport lag                 |+00 00:00:00        |day(2) to second(0) interval  |10/17/2017 21:45:22           |10/17/2017 21:45:21
+
+
+
+**********part$ 0030. 查看当前逻辑库应用状态、包含restart_time,mining_time,applied_time**********
+
+          LATEST_SCN|LATEST_TIME        |         RESTART_SCN|RESTART_TIME       |          MINING_SCN|MINING_TIME        |         APPLIED_SCN|APPLIED_TIME
+====================|===================|====================|===================|====================|===================|====================|===================
+       6177105313096|2017-10-17 21:45:22|       6177105308905|2017-10-17 21:45:13|       6177105313053|2017-10-17 21:45:21|       6177105312744|2017-10-17 21:45:21
+
+
+
+**********part$ 0040. 检查逻辑库端归档日志的使用情况**********
+**********order by applied, thread#, sequence# desc**********
+**********just spool lastest 50 logs**********
+
+                SEQ#|              F_SCN#|              N_SCN#|TIMESTAMP          |BEG   |END   |  THR#|APPLIED|FILE_NAME
+====================|====================|====================|===================|======|======|======|=======|============================================================
+              184442|       6177104491080|       6177105156569|2017-10-17 21:40:03|NO    |NO    |     1|YES    |+REDO/stdlog/billdb/arc_1_184442_852316101.arc
+              184441|       6177104484382|       6177104491080|2017-10-17 21:20:00|NO    |NO    |     1|YES    |+REDO/stdlog/billdb/arc_1_184441_852316101.arc
+              184440|       6177103753995|       6177104484382|2017-10-17 21:19:45|NO    |NO    |     1|YES    |+REDO/stdlog/billdb/arc_1_184440_852316101.arc
+              184439|       6177102661285|       6177103753995|2017-10-17 21:00:04|NO    |NO    |     1|YES    |+REDO/stdlog/billdb/arc_1_184439_852316101.arc
+              184438|       6177099720122|       6177102661285|2017-10-17 20:40:05|NO    |NO    |     1|YES    |+REDO/stdlog/billdb/arc_1_184438_852316101.arc
+               85748|       6177104158513|       6177104821817|2017-10-17 21:30:01|NO    |NO    |     2|YES    |+REDO/stdlog/billdb/arc_2_85748_852316101.arc
+               85747|       6177103336402|       6177104158513|2017-10-17 21:10:01|NO    |NO    |     2|YES    |+REDO/stdlog/billdb/arc_2_85747_852316101.arc
+               85746|       6177100022389|       6177103336402|2017-10-17 20:50:01|NO    |NO    |     2|YES    |+REDO/stdlog/billdb/arc_2_85746_852316101.arc
+               85745|       6177098128355|       6177100022389|2017-10-17 20:30:00|NO    |NO    |     2|YES    |+REDO/stdlog/billdb/arc_2_85745_852316101.arc
+
+9 rows selected.
+
+
+
+**********part$ 0050. 查看各个逻辑库相关进程的当前状态**********
+
+s_type         |LOGON_TIME         |PROGRAM                       |PNAME     |SESS_INFO                          |  rank|            HIGH_SCN|STATUS
+===============|===================|==============================|==========|===================================|======|====================|========================================================================================================================
+1 - READER     |2017-10-16 13:31:55|oracle@dm (MS00)              |MS00      |14877154 - 331 - 3460 - 32531      |     1|       6177105313053|ORA-16242: 处理日志文件 (thread# 2, sequence# 85749)
+2 - PREPARER   |2017-10-16 13:31:55|oracle@dm (MS02)              |MS02      |26477140 - 350 - 4190 - 12453      |    15|       6177105312334|ORA-16116: 无可用工作
+2 - PREPARER   |2017-10-16 13:31:55|oracle@dm (MS03)              |MS03      |24904280 - 357 - 4458 - 9107       |     1|       6177105313053|ORA-16116: 无可用工作
+2 - PREPARER   |2017-10-16 13:31:55|oracle@dm (MS04)              |MS04      |31195224 - 363 - 122 - 63449       |    14|       6177105312746|ORA-16116: 无可用工作
+2 - PREPARER   |2017-10-16 13:31:55|oracle@dm (MS05)              |MS05      |32899558 - 365 - 199 - 21711       |    16|       6177105308902|ORA-16116: 无可用工作
+3 - BUILDER    |2017-10-16 13:31:55|oracle@dm (MS01)              |MS01      |10420524 - 340 - 3805 - 11609      |     2|       6177105313050|ORA-16116: 无可用工作
+4 - ANALYZER   |2017-10-16 13:32:04|oracle@dm (AS00)              |AS00      |15532252 - 371 - 428 - 32923       |     2|       6177105313050|ORA-16116: 无可用工作
+5 - COORDINATOR|2017-10-15 15:14:03|oracle@dm (LSP0)              |LSP0      |33882616 - 214 - 3584 - 31725      |     2|       6177105313050|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS01)              |AS01      |24773270 - 377 - 654 - 5995        |     3|       6177105313045|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS02)              |AS02      |4849722 - 381 - 811 - 28543        |    10|       6177105313003|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS03)              |AS03      |27066480 - 386 - 998 - 47523       |    13|       6177105312956|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS04)              |AS04      |22217584 - 402 - 1611 - 4271       |     5|       6177105313037|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS05)              |AS05      |19465176 - 405 - 1719 - 56161      |    12|       6177105312959|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS06)              |AS06      |22348178 - 408 - 1832 - 38737      |     4|       6177105313041|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS07)              |AS07      |21430924 - 410 - 1914 - 50103      |     2|       6177105313050|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS08)              |AS08      |8061820 - 413 - 2016 - 28909       |    11|       6177105312993|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS09)              |AS09      |16908874 - 419 - 2251 - 59157      |     9|       6177105313018|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS0A)              |AS0A      |29688276 - 420 - 2287 - 715        |     7|       6177105313033|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS0B)              |AS0B      |24510956 - 421 - 2325 - 35501      |     6|       6177105313035|ORA-16116: 无可用工作
+6 - APPLIER    |2017-10-16 13:32:04|oracle@dm (AS0C)              |AS0C      |31261620 - 424 - 2444 - 44395      |     8|       6177105313031|ORA-16116: 无可用工作
+
+20 rows selected.
+
+
+
+**********part$ 0060. 查看各个逻辑库相关进程的当前在执行的语句**********
+
+s_type         |NAME    |SQL_ID          |PREV_SQL_ID     |EVENT                                        |SQL_TEXT                                                                                                                          |PREV_SQL_TEXT
+===============|========|================|================|=============================================|==================================================================================================================================|==================================================================================================================================
+1 - READER     |SYS     |                |6jah9ascxbmjw   |LogMiner reader: redo (idle)                 |                                                                                                                                  |select redo_compat from system.logmnr_session$ where session# = :session_id
+2 - PREPARER   |SYS     |                |34a34zf4x2ua2   |LogMiner preparer: idle                      |                                                                                                                                  |DECLARE  p1 NUMBER := :1;  p2 NUMBER := :2;  p3 NUMBER := :3;  P35 NUMBER:= :qs;  p4 NUMBER;  p5 NUMBER;  p6 NUMBER;  p7 NUMBER;
+               |        |                |                |                                             |                                                                                                                                  |p8 NUMBER;  p9 NUMBER;  p10 NUMBER;  p11 NUMBER;  p12 VARCHAR2(31);  p13 VARCHAR2(31);  p14 VARCHAR2(31);  p15 VARCHAR2(31);  p16
+               |        |                |                |                                             |                                                                                                                                  |NUMBER;  p17 NUMBER;  p18 NUMBER;  p19 NUMBER;  p20 NUMBER;  p21 NUMBER;  p22 NUMBER;  p23 NUMBER;  p24 VARCHAR2(31);  p25 NUMBER;
+               |        |                |                |                                             |                                                                                                                                  |  p26 NUMBER;  p27 VARCHAR2(30);  p28 NUMBER;  p29 NUMBER;  p30 NUMBER;  p31 NUMBER;  p32 NUMBER;  p33 NUMBER;  p34 NUMBER;  BEGIN
+               |        |                |                |                                             |                                                                                                                                  |       SYS.LOGMNR_GTLO3(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,                           p12, p13, p14, p15, p16, p17, p18,
+               |        |                |                |                                             |                                                                                                                                  | p19, p20, p21,                       p22, p23, p24, p25, p26, p27, p28, p29, p30, p31,                       p32, p33, p34, p35);
+               |        |                |                |                                             |                                                                                                                                  |                                   :3 := p3; :4 := p4; :5 := p5; :6 := p6; :7 := p7; :8 := p8; :9 := p9;       :10 := p10; :11 :=
+               |        |                |                |                                             |                                                                                                                                  |p11; :12 := p12; :13 := p13; :14 := p14; :15 := p15;     :16 := p16; :17 := p17; :18 := p1
+
+2 - PREPARER   |SYS     |                |34a34zf4x2ua2   |LogMiner preparer: idle                      |                                                                                                                                  |DECLARE  p1 NUMBER := :1;  p2 NUMBER := :2;  p3 NUMBER := :3;  P35 NUMBER:= :qs;  p4 NUMBER;  p5 NUMBER;  p6 NUMBER;  p7 NUMBER;
+               |        |                |                |                                             |                                                                                                                                  |p8 NUMBER;  p9 NUMBER;  p10 NUMBER;  p11 NUMBER;  p12 VARCHAR2(31);  p13 VARCHAR2(31);  p14 VARCHAR2(31);  p15 VARCHAR2(31);  p16
+               |        |                |                |                                             |                                                                                                                                  |NUMBER;  p17 NUMBER;  p18 NUMBER;  p19 NUMBER;  p20 NUMBER;  p21 NUMBER;  p22 NUMBER;  p23 NUMBER;  p24 VARCHAR2(31);  p25 NUMBER;
+               |        |                |                |                                             |                                                                                                                                  |  p26 NUMBER;  p27 VARCHAR2(30);  p28 NUMBER;  p29 NUMBER;  p30 NUMBER;  p31 NUMBER;  p32 NUMBER;  p33 NUMBER;  p34 NUMBER;  BEGIN
+               |        |                |                |                                             |                                                                                                                                  |       SYS.LOGMNR_GTLO3(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,                           p12, p13, p14, p15, p16, p17, p18,
+               |        |                |                |                                             |                                                                                                                                  | p19, p20, p21,                       p22, p23, p24, p25, p26, p27, p28, p29, p30, p31,                       p32, p33, p34, p35);
+               |        |                |                |                                             |                                                                                                                                  |                                   :3 := p3; :4 := p4; :5 := p5; :6 := p6; :7 := p7; :8 := p8; :9 := p9;       :10 := p10; :11 :=
+               |        |                |                |                                             |                                                                                                                                  |p11; :12 := p12; :13 := p13; :14 := p14; :15 := p15;     :16 := p16; :17 := p17; :18 := p1
+
+2 - PREPARER   |SYS     |                |34a34zf4x2ua2   |LogMiner preparer: idle                      |                                                                                                                                  |DECLARE  p1 NUMBER := :1;  p2 NUMBER := :2;  p3 NUMBER := :3;  P35 NUMBER:= :qs;  p4 NUMBER;  p5 NUMBER;  p6 NUMBER;  p7 NUMBER;
+               |        |                |                |                                             |                                                                                                                                  |p8 NUMBER;  p9 NUMBER;  p10 NUMBER;  p11 NUMBER;  p12 VARCHAR2(31);  p13 VARCHAR2(31);  p14 VARCHAR2(31);  p15 VARCHAR2(31);  p16
+               |        |                |                |                                             |                                                                                                                                  |NUMBER;  p17 NUMBER;  p18 NUMBER;  p19 NUMBER;  p20 NUMBER;  p21 NUMBER;  p22 NUMBER;  p23 NUMBER;  p24 VARCHAR2(31);  p25 NUMBER;
+               |        |                |                |                                             |                                                                                                                                  |  p26 NUMBER;  p27 VARCHAR2(30);  p28 NUMBER;  p29 NUMBER;  p30 NUMBER;  p31 NUMBER;  p32 NUMBER;  p33 NUMBER;  p34 NUMBER;  BEGIN
+               |        |                |                |                                             |                                                                                                                                  |       SYS.LOGMNR_GTLO3(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,                           p12, p13, p14, p15, p16, p17, p18,
+               |        |                |                |                                             |                                                                                                                                  | p19, p20, p21,                       p22, p23, p24, p25, p26, p27, p28, p29, p30, p31,                       p32, p33, p34, p35);
+               |        |                |                |                                             |                                                                                                                                  |                                   :3 := p3; :4 := p4; :5 := p5; :6 := p6; :7 := p7; :8 := p8; :9 := p9;       :10 := p10; :11 :=
+               |        |                |                |                                             |                                                                                                                                  |p11; :12 := p12; :13 := p13; :14 := p14; :15 := p15;     :16 := p16; :17 := p17; :18 := p1
+
+2 - PREPARER   |SYS     |                |34a34zf4x2ua2   |LogMiner preparer: idle                      |                                                                                                                                  |DECLARE  p1 NUMBER := :1;  p2 NUMBER := :2;  p3 NUMBER := :3;  P35 NUMBER:= :qs;  p4 NUMBER;  p5 NUMBER;  p6 NUMBER;  p7 NUMBER;
+               |        |                |                |                                             |                                                                                                                                  |p8 NUMBER;  p9 NUMBER;  p10 NUMBER;  p11 NUMBER;  p12 VARCHAR2(31);  p13 VARCHAR2(31);  p14 VARCHAR2(31);  p15 VARCHAR2(31);  p16
+               |        |                |                |                                             |                                                                                                                                  |NUMBER;  p17 NUMBER;  p18 NUMBER;  p19 NUMBER;  p20 NUMBER;  p21 NUMBER;  p22 NUMBER;  p23 NUMBER;  p24 VARCHAR2(31);  p25 NUMBER;
+               |        |                |                |                                             |                                                                                                                                  |  p26 NUMBER;  p27 VARCHAR2(30);  p28 NUMBER;  p29 NUMBER;  p30 NUMBER;  p31 NUMBER;  p32 NUMBER;  p33 NUMBER;  p34 NUMBER;  BEGIN
+               |        |                |                |                                             |                                                                                                                                  |       SYS.LOGMNR_GTLO3(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11,                           p12, p13, p14, p15, p16, p17, p18,
+               |        |                |                |                                             |                                                                                                                                  | p19, p20, p21,                       p22, p23, p24, p25, p26, p27, p28, p29, p30, p31,                       p32, p33, p34, p35);
+               |        |                |                |                                             |                                                                                                                                  |                                   :3 := p3; :4 := p4; :5 := p5; :6 := p6; :7 := p7; :8 := p8; :9 := p9;       :10 := p10; :11 :=
+               |        |                |                |                                             |                                                                                                                                  |p11; :12 := p12; :13 := p13; :14 := p14; :15 := p15;     :16 := p16; :17 := p17; :18 := p1
+
+3 - BUILDER    |SYS     |                |27f8yt3bm1j9v   |LogMiner builder: idle                       |                                                                                                                                  |update system.logmnr_session$ set spill_scn = :l_spill_scn,      spill_time = :l_spill_time, oldest_scn = :l_oldest_scn,        re
+               |        |                |                |                                             |                                                                                                                                  |sume_scn = :l_resume_scn where session# = :l_session_id
+
+4 - ANALYZER   |SYS     |                |0xtkh9ctp0vu8   |LogMiner client: transaction                 |                                                                                                                                  |declare  inscn number := :1;  xidusn_in number := :2;  xidslt_in number := :3;  xidsqn_in number := :4;  cnt number; begin update
+               |        |                |                |                                             |                                                                                                                                  |system.logstdby$skip_transaction set commit_scn = inscn  where xidusn=xidusn_in and xidslt=xidslt_in and xidsqn=xidsqn_in; :5 := S
+               |        |                |                |                                             |                                                                                                                                  |QL%ROWCOUNT; select count(*) into cnt from system.logstdby$skip_transaction  where commit_scn is null or commit_scn > inscn;  :6 :
+               |        |                |                |                                             |                                                                                                                                  |= cnt; commit; end;
+
+5 - COORDINATOR|        |                |aqtmnmapq3uf8   |rdbms ipc message                            |                                                                                                                                  |select filter_type, count(*) from system.logmnr_filter$   where session# = :session_id and                                (filter_
+               |        |                |                |                                             |                                                                                                                                  |scn is null or filter_scn >= :retart_scn)    group by filter_type
+
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+6 - APPLIER    |SYS     |                |404qaurwrsnva   |rdbms ipc message                            |                                                                                                                                  |INSERT INTO SYSTEM.LOGSTDBY$APPLY_PROGRESS(XIDUSN,XIDSLT,XIDSQN,COMMIT_SCN, COMMIT_TIME) VALUES (:1,:2,:3,:4,:5)
+
+20 rows selected.
+
+
+
+**********part$ 0070. 检查逻辑库端最近时间段内的事件**********
+
+EVENT_TIME          |EXEC_SQL                                                    |STATUS                                                                |EVENT
+====================|============================================================|======================================================================|========================================================================================================================
+2017-10-17 20:02:50 |exec dbms_logstdby.skip_transaction(4758,11,720465);        |ORA-16205: DDL skipped due to skip setting                            |Truncate Table Dbasteve.Strack_Tbl_Wait_Event
+                    |exec dbms_logstdby.skip_transaction(4606,8,8488510);        |ORA-16205: DDL skipped due to skip setting                            |Truncate Table Dbasteve.Strack_Tbl_Db_Time
+2017-10-17 16:20:15 |exec dbms_logstdby.skip_transaction(4628,14,10770810);      |ORA-16205: DDL skipped due to skip setting                            |Truncate Table Dbasteve.Strack_Tbl_Wait_Event
+2017-10-17 16:20:14 |exec dbms_logstdby.skip_transaction(4782,23,3850881);       |ORA-16205: DDL skipped due to skip setting                            |Truncate Table Dbasteve.Strack_Tbl_Db_Time
+2017-10-17 14:23:10 |exec dbms_logstdby.skip_transaction(4792,24,607326);        |ORA-16205: DDL skipped due to skip setting                            |Truncate Table Dbasteve.Strack_Tbl_Wait_Event
+                    |exec dbms_logstdby.skip_transaction(4668,3,2087724);        |ORA-16205: DDL skipped due to skip setting                            |Truncate Table Dbasteve.Strack_Tbl_Db_Time
+2017-10-17 05:10:15 |exec dbms_logstdby.skip_transaction(3620,27,2706519);       |ORA-16200: Skip procedure requested to skip statement                 |alter tablespace ENTRY_IDX add datafile '+DATA/oradata/billdb/entry_idx_20171017
+2017-10-17 05:10:11 |exec dbms_logstdby.skip_transaction(3620,27,2706519);       |ORA-16110: user procedure processing of logical standby apply DDL     |alter tablespace ENTRY_IDX add datafile '+DATA/oradata/billdb/entry_idx_20171017
+2017-10-17 03:26:01 |exec dbms_logstdby.skip_transaction(3620,29,2706287);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606685 to "SYS"
+2017-10-17 03:26:00 |exec dbms_logstdby.skip_transaction(3620,9,2706159);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606684 to "SYS"
+2017-10-17 03:25:58 |exec dbms_logstdby.skip_transaction(3620,28,2706744);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606683 to "SYS"
+2017-10-17 03:25:57 |exec dbms_logstdby.skip_transaction(3620,12,2706239);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606682 to "SYS"
+2017-10-17 03:25:55 |exec dbms_logstdby.skip_transaction(3620,29,2706285);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606681 to "SYS"
+2017-10-17 03:25:54 |exec dbms_logstdby.skip_transaction(3619,24,253016);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606680 to "SYS"
+2017-10-17 03:25:52 |exec dbms_logstdby.skip_transaction(3620,24,2706784);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606679 to "SYS"
+2017-10-17 03:25:51 |exec dbms_logstdby.skip_transaction(3617,20,60784);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606678 to "SYS"
+2017-10-17 03:25:49 |exec dbms_logstdby.skip_transaction(3620,24,2706783);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606677 to "SYS"
+2017-10-17 03:25:47 |exec dbms_logstdby.skip_transaction(3936,8,481136);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606676 to "SYS"
+2017-10-17 03:25:46 |exec dbms_logstdby.skip_transaction(3612,4,59938);          |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606675 to "SYS"
+2017-10-17 03:25:44 |exec dbms_logstdby.skip_transaction(3620,3,2705426);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606674 to "SYS"
+2017-10-17 03:25:42 |exec dbms_logstdby.skip_transaction(3620,12,2706234);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606673 to "SYS"
+2017-10-17 03:25:40 |exec dbms_logstdby.skip_transaction(3620,28,2706738);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606672 to "SYS"
+2017-10-17 03:25:39 |exec dbms_logstdby.skip_transaction(3620,30,2706396);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606671 to "SYS"
+2017-10-17 03:25:37 |exec dbms_logstdby.skip_transaction(3620,24,2706779);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606670 to "SYS"
+2017-10-17 03:25:36 |exec dbms_logstdby.skip_transaction(3620,33,2707735);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606669 to "SYS"
+2017-10-17 03:25:35 |exec dbms_logstdby.skip_transaction(3616,0,59501);          |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606668 to "SYS"
+2017-10-17 03:25:34 |exec dbms_logstdby.skip_transaction(3620,4,2705328);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606667 to "SYS"
+2017-10-17 03:25:33 |exec dbms_logstdby.skip_transaction(3620,1,2707044);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606666 to "SYS"
+2017-10-17 03:25:32 |exec dbms_logstdby.skip_transaction(3620,9,2706149);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606665 to "SYS"
+2017-10-17 03:25:31 |exec dbms_logstdby.skip_transaction(3620,20,2706690);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606664 to "SYS"
+2017-10-17 03:25:30 |exec dbms_logstdby.skip_transaction(3936,28,480749);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606663 to "SYS"
+2017-10-17 03:25:29 |exec dbms_logstdby.skip_transaction(3620,10,2706244);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606662 to "SYS"
+2017-10-17 03:25:28 |exec dbms_logstdby.skip_transaction(3936,12,481217);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606661 to "SYS"
+2017-10-17 03:25:27 |exec dbms_logstdby.skip_transaction(3936,18,481245);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606660 to "SYS"
+2017-10-17 03:25:25 |exec dbms_logstdby.skip_transaction(3620,29,2706274);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606659 to "SYS"
+2017-10-17 03:25:24 |exec dbms_logstdby.skip_transaction(3620,12,2706227);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606658 to "SYS"
+2017-10-17 03:25:23 |exec dbms_logstdby.skip_transaction(3936,25,481050);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606657 to "SYS"
+2017-10-17 03:25:22 |exec dbms_logstdby.skip_transaction(3620,24,2706773);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606656 to "SYS"
+2017-10-17 03:25:21 |exec dbms_logstdby.skip_transaction(3620,30,2706389);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606655 to "SYS"
+2017-10-17 03:25:20 |exec dbms_logstdby.skip_transaction(3615,27,58964);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606654 to "SYS"
+2017-10-17 03:25:19 |exec dbms_logstdby.skip_transaction(3611,17,59559);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606653 to "SYS"
+2017-10-17 03:25:17 |exec dbms_logstdby.skip_transaction(3620,17,2690244);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606652 to "SYS"
+2017-10-17 03:25:16 |exec dbms_logstdby.skip_transaction(3936,5,481290);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606651 to "SYS"
+2017-10-17 03:25:15 |exec dbms_logstdby.skip_transaction(3936,17,481035);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606650 to "SYS"
+2017-10-17 03:25:13 |exec dbms_logstdby.skip_transaction(3936,14,481227);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606649 to "SYS"
+2017-10-17 03:25:12 |exec dbms_logstdby.skip_transaction(3936,28,480747);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606648 to "SYS"
+2017-10-17 03:25:10 |exec dbms_logstdby.skip_transaction(3620,9,2706141);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606647 to "SYS"
+2017-10-17 03:25:08 |exec dbms_logstdby.skip_transaction(3620,20,2706682);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606646 to "SYS"
+2017-10-17 03:25:07 |exec dbms_logstdby.skip_transaction(3620,16,2706401);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606645 to "SYS"
+2017-10-17 03:25:04 |exec dbms_logstdby.skip_transaction(3620,24,2706767);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606644 to "SYS"
+2017-10-17 03:25:03 |exec dbms_logstdby.skip_transaction(3936,2,481031);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606643 to "SYS"
+2017-10-17 03:25:02 |exec dbms_logstdby.skip_transaction(3936,15,481342);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606642 to "SYS"
+2017-10-17 03:25:00 |exec dbms_logstdby.skip_transaction(3620,14,2706405);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606641 to "SYS"
+2017-10-17 03:24:59 |exec dbms_logstdby.skip_transaction(3936,0,481047);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606640 to "SYS"
+2017-10-17 03:24:57 |exec dbms_logstdby.skip_transaction(3617,10,60854);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606639 to "SYS"
+2017-10-17 03:24:56 |exec dbms_logstdby.skip_transaction(3620,20,2706678);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606638 to "SYS"
+2017-10-17 03:24:54 |exec dbms_logstdby.skip_transaction(3936,27,481283);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606637 to "SYS"
+2017-10-17 03:24:53 |exec dbms_logstdby.skip_transaction(3620,7,2705880);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606636 to "SYS"
+2017-10-17 03:24:52 |exec dbms_logstdby.skip_transaction(3616,16,59517);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606635 to "SYS"
+2017-10-17 03:24:50 |exec dbms_logstdby.skip_transaction(3619,33,253126);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606634 to "SYS"
+2017-10-17 03:24:48 |exec dbms_logstdby.skip_transaction(3620,26,2706588);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606633 to "SYS"
+2017-10-17 03:24:47 |exec dbms_logstdby.skip_transaction(3620,13,2706581);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606632 to "SYS"
+2017-10-17 03:24:46 |exec dbms_logstdby.skip_transaction(3620,4,2705311);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606631 to "SYS"
+2017-10-17 03:24:44 |exec dbms_logstdby.skip_transaction(3936,8,481129);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606630 to "SYS"
+2017-10-17 03:24:43 |exec dbms_logstdby.skip_transaction(3620,4,2705310);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606629 to "SYS"
+2017-10-17 03:24:42 |exec dbms_logstdby.skip_transaction(3612,7,59919);          |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606628 to "SYS"
+2017-10-17 03:24:40 |exec dbms_logstdby.skip_transaction(3618,28,74804);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606627 to "SYS"
+2017-10-17 03:24:38 |exec dbms_logstdby.skip_transaction(3616,25,59541);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606626 to "SYS"
+2017-10-17 03:24:36 |exec dbms_logstdby.skip_transaction(3936,7,480789);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606625 to "SYS"
+2017-10-17 03:24:35 |exec dbms_logstdby.skip_transaction(3620,23,2706257);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606624 to "SYS"
+                    |exec dbms_logstdby.skip_transaction(3620,2,2706490);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606623 to "SYS"
+2017-10-17 03:24:32 |exec dbms_logstdby.skip_transaction(3620,18,2706436);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606622 to "SYS"
+2017-10-17 03:24:31 |exec dbms_logstdby.skip_transaction(3620,6,2706012);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606621 to "SYS"
+2017-10-17 03:24:29 |exec dbms_logstdby.skip_transaction(3620,26,2706582);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606620 to "SYS"
+2017-10-17 03:24:28 |exec dbms_logstdby.skip_transaction(3936,11,480717);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606619 to "SYS"
+2017-10-17 03:24:25 |exec dbms_logstdby.skip_transaction(3620,26,2706581);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606618 to "SYS"
+2017-10-17 03:24:24 |exec dbms_logstdby.skip_transaction(3619,6,252850);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606617 to "SYS"
+2017-10-17 03:24:22 |exec dbms_logstdby.skip_transaction(3620,20,2706667);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606616 to "SYS"
+2017-10-17 03:24:21 |exec dbms_logstdby.skip_transaction(3613,7,59343);          |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606615 to "SYS"
+2017-10-17 03:24:19 |exec dbms_logstdby.skip_transaction(3936,8,481127);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606614 to "SYS"
+2017-10-17 03:24:18 |exec dbms_logstdby.skip_transaction(3612,10,59879);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606613 to "SYS"
+                    |exec dbms_logstdby.skip_transaction(3620,10,2706220);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606612 to "SYS"
+2017-10-17 03:24:15 |exec dbms_logstdby.skip_transaction(3620,4,2705301);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606611 to "SYS"
+2017-10-17 03:24:13 |exec dbms_logstdby.skip_transaction(3620,19,2705987);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606610 to "SYS"
+2017-10-17 03:24:11 |exec dbms_logstdby.skip_transaction(3936,4,481389);         |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606609 to "SYS"
+2017-10-17 03:24:10 |exec dbms_logstdby.skip_transaction(3620,9,2706122);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606608 to "SYS"
+2017-10-17 03:24:08 |exec dbms_logstdby.skip_transaction(3620,16,2706382);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606607 to "SYS"
+2017-10-17 03:24:07 |exec dbms_logstdby.skip_transaction(3620,5,2706641);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606606 to "SYS"
+2017-10-17 03:24:05 |exec dbms_logstdby.skip_transaction(3620,27,2706383);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606605 to "SYS"
+2017-10-17 03:24:03 |exec dbms_logstdby.skip_transaction(3936,16,481330);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606604 to "SYS"
+2017-10-17 03:24:02 |exec dbms_logstdby.skip_transaction(3620,24,2706747);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606603 to "SYS"
+2017-10-17 03:24:00 |exec dbms_logstdby.skip_transaction(3620,8,2706407);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606602 to "SYS"
+2017-10-17 03:23:59 |exec dbms_logstdby.skip_transaction(3936,21,481167);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606601 to "SYS"
+2017-10-17 03:23:58 |exec dbms_logstdby.skip_transaction(3620,28,2706703);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606600 to "SYS"
+2017-10-17 03:23:57 |exec dbms_logstdby.skip_transaction(3620,4,2705295);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606599 to "SYS"
+2017-10-17 03:23:55 |exec dbms_logstdby.skip_transaction(3620,1,2707011);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606598 to "SYS"
+2017-10-17 03:23:53 |exec dbms_logstdby.skip_transaction(3620,28,2706701);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606597 to "SYS"
+2017-10-17 03:23:51 |exec dbms_logstdby.skip_transaction(3936,23,481098);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606596 to "SYS"
+2017-10-17 03:23:50 |exec dbms_logstdby.skip_transaction(3936,27,481278);        |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606595 to "SYS"
+2017-10-17 03:23:48 |exec dbms_logstdby.skip_transaction(3620,10,2706210);       |ORA-16227: DDL skipped due to missing object                          |grant select,insert on sys.ora_temp_2_ds_2606594 to "SYS"
+
+100 rows selected.
+
+
+
+**********part$ 0080. 检查逻辑库端最后一条事件**********
+
+EVENT_TIME          |              XIDUSN|              XIDSLT|              XIDSQN|STATUS                                                                |EVENT                                                                                                                   |EXEC_SQL                                                    |EVENT_TIME          |EVENT_TIMESTAMP                                                            |           START_SCN|         CURRENT_SCN|          COMMIT_SCN|              XIDUSN|              XIDSLT|              XIDSQN|EVENT                                                                                                                   |         STATUS_CODE|STATUS
+====================|====================|====================|====================|======================================================================|========================================================================================================================|============================================================|====================|===========================================================================|====================|====================|====================|====================|====================|====================|========================================================================================================================|====================|======================================================================
+2017-10-17 20:02:50 |                4606|                   8|             8488510|ORA-16205: DDL skipped due to skip setting                            |Truncate Table Dbasteve.Strack_Tbl_Db_Time                                                                              |exec dbms_logstdby.skip_transaction(4606,8,8488510);        |2017-10-17 20:02:50 |17-10月-17 08.02.50.239075 下午                                            |       6177097557606|       6177097557657|       6177097557726|                4606|                   8|             8488510|Truncate Table Dbasteve.Strack_Tbl_Db_Time                                                                              |               16205|ORA-16205: DDL skipped due to skip setting
+2017-10-17 20:02:50 |                4758|                  11|              720465|ORA-16205: DDL skipped due to skip setting                            |Truncate Table Dbasteve.Strack_Tbl_Wait_Event                                                                           |exec dbms_logstdby.skip_transaction(4758,11,720465);                             |17-10月-17 08.02.50.429251 下午                                            |       6177097558081|       6177097558082|       6177097558086|                4758|                  11|              720465|Truncate Table Dbasteve.Strack_Tbl_Wait_Event                                                                           |               16205|ORA-16205: DDL skipped due to skip setting
+
+
+
+**********part$ 0090. the end**********
