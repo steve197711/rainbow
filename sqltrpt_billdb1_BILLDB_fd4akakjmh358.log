@@ -1,0 +1,473 @@
+
+GENERAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+Tuning Task Name   : TASK_443897
+Tuning Task Owner  : DBASTEVE
+Workload Type      : Single SQL Statement
+Scope              : COMPREHENSIVE
+Time Limit(seconds): 900
+Completion Status  : COMPLETED
+Started at         : 09/24/2017 20:22:02
+Completed at       : 09/24/2017 20:23:12
+
+-------------------------------------------------------------------------------
+Schema Name: FUNDOUT
+SQL ID     : fd4akakjmh358
+SQL Text   : select * from ( select count(*) from  ( select
+             wo.membercode,wo.orderseqid, wo.dealid,
+             wo.banknameid,wo.branchbankname, wo.bankacctid, wo.amount,
+             wo.name, wo.province,wo.city,wo.remark , wo.status, wo.batchid,
+             wo.isindividual,wo.email,wo.owner, hs.oldstatus, hs.curstatus,
+             hs.id, mm.membertype   from withdrawworkorder wo,
+             riskaudit_operate_history hs, member mm  where 1=1 and
+             wo.orderseqid = hs.orderseqid and mm.membercode = wo.membercode
+             and hs.id in (select max(id) mid from riskaudit_operate_history
+             roh where 1=1  and roh.processdate >= to_date( :1 ,'yyyy-mm-dd
+             hh24:mi:ss')  and roh.processdate <= to_date(:2 ,'yyyy-mm-dd
+             hh24:mi:ss')  group by roh.orderseqid) and hs.curstatus in
+             (2,3,4) order by hs.processdate desc ) ) where rownum <= :3
+Bind Variables :
+ 1 -  (VARCHAR2(128)):2017-09-20 00:00:00
+ 2 -  (VARCHAR2(128)):2017-09-27 00:00:00
+ 3 -  (NUMBER):1
+
+-------------------------------------------------------------------------------
+FINDINGS SECTION (3 findings)
+-------------------------------------------------------------------------------
+
+1- SQL Profile Finding (see explain plans section below)
+--------------------------------------------------------
+  为此语句找到了性能更好的执行计划。
+
+  Recommendation (estimated benefit: 98.18%)
+  ------------------------------------------
+  - 考虑接受建议的 SQL 概要文件, 以便对此语句使用并行执行。
+    execute dbms_sqltune.accept_sql_profile(task_name => 'TASK_443897',
+            task_owner => 'DBASTEVE', replace => TRUE, profile_type =>
+            DBMS_SQLTUNE.PX_PROFILE);
+
+  与 DOP 256 并行执行此查询会使原始计划上的响应时间缩短 98.18%。但是, 启用并行执行时要付出一些代价。它将增加语句的资源消耗 (预计为
+  365.62%), 这会导致系统吞吐量降低。此外, 由于在非常短的持续时间内消耗了这些资源, 因此如果没有足够可用的硬件容量,
+  并发语句的响应时间将受到负面影响。
+
+  The following data shows some sampled statistics for this SQL from the past
+  week and projected weekly values when parallel execution is enabled.
+
+                                 Past week sampled statistics for this SQL
+                                 -----------------------------------------
+  Number of executions                                                   0
+  Percent of total activity                                              0
+  Percent of samples with #Active Sessions > 2*CPU                       0
+  Weekly DB time (in sec)                                                0
+
+                              Projected statistics with Parallel Execution
+                              --------------------------------------------
+  Weekly DB time (in sec)                                                0
+
+2- Index Finding (see explain plans section below)
+--------------------------------------------------
+  通过创建一个或多个索引可以改进此语句的执行计划。
+
+  Recommendation (estimated benefit: 99.11%)
+  ------------------------------------------
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index FUNDOUT.IDX$$_6C5F90001 on
+    FUNDOUT.RISKAUDIT_OPERATE_HISTORY("PROCESSDATE");
+
+  Rationale
+  ---------
+    创建推荐的索引可以显著地改进此语句的执行计划。但是, 使用典型的 SQL 工作量运行 "访问指导"
+    可能比单个语句更可取。通过这种方法可以获得全面的索引建议案, 包括计算索引维护的开销和附加的空间消耗。
+
+3- Alternative Plan Finding
+---------------------------
+  通过搜索系统的实时和历史性能数据找到了此语句的某些替代执行计划。
+
+  The following table lists these plans ranked by their average elapsed time.
+  See section "ALTERNATIVE PLANS SECTION" for detailed information on each
+  plan.
+
+  id plan hash  last seen            elapsed (s)  origin          note
+  -- ---------- -------------------- ------------ --------------- ----------------
+   1  260692140  2013-10-18/09:37:18        9.470 STS             not reproducible
+   2 3005778933  2013-10-18/09:37:18       22.705 STS             not reproducible
+   3  934563782              unknown       72.329 STS             not reproducible
+   4 4238546737  2017-09-18/15:45:30      208.755 AWR
+   5 3928562966  2017-09-23/13:56:06      283.511 Cursor Cache    original plan
+
+  Recommendation
+  --------------
+  - 请考虑使用最佳平均用时为计划创建 SQL 计划基线。
+    execute dbms_sqltune.create_sql_plan_baseline(task_name => 'TASK_443897',
+            owner_name => 'DBASTEVE', plan_hash_value => 4238546737);
+  - 在当前环境中无法重新生成具有 ID 1 的计划。由于此原因, 无法创建 SQL 计划基线以指示 Oracle 优化程序在将来选取该计划。
+  - 无法重新生成具有 ID 2 的计划, 因为缺少 the object "IDX_RISKAUDITOHS_PROCESSDATE" with
+    type "INDEX"。由于此原因, 无法创建 SQL 计划基线以指示 Oracle 优化程序在将来选取该计划。
+  - 在当前环境中无法重新生成具有 ID 3 的计划。由于此原因, 无法创建 SQL 计划基线以指示 Oracle 优化程序在将来选取该计划。
+
+-------------------------------------------------------------------------------
+ADDITIONAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+- 优化程序不能合并位于执行计划的行 ID 2 处的视图。. 优化程序不能合并包含不带 "GROUP BY" 子句的聚集函数的视图。.
+
+-------------------------------------------------------------------------------
+EXPLAIN PLANS SECTION
+-------------------------------------------------------------------------------
+
+1- Original
+-----------
+Plan hash value: 3928562966
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                    | Name                         | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+---------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                             |                              |     1 |    13 | 44861   (1)| 00:08:59 |       |       |
+|*  1 |  COUNT STOPKEY                               |                              |       |       |            |          |       |       |
+|   2 |   VIEW                                       |                              |     1 |    13 | 44861   (1)| 00:08:59 |       |       |
+|*  3 |    SORT AGGREGATE                            |                              |     1 |    53 |            |          |       |       |
+|   4 |     NESTED LOOPS                             |                              |    43 |  2279 | 44861   (1)| 00:08:59 |       |       |
+|   5 |      NESTED LOOPS                            |                              |    43 |  1935 | 44860   (1)| 00:08:59 |       |       |
+|   6 |       NESTED LOOPS                           |                              |    43 |  1290 | 44854   (1)| 00:08:59 |       |       |
+|   7 |        VIEW                                  | VW_NSO_1                     |    43 |   559 | 44467   (1)| 00:08:54 |       |       |
+|   8 |         HASH UNIQUE                          |                              |    43 |   946 | 44467   (1)| 00:08:54 |       |       |
+|   9 |          HASH GROUP BY                       |                              |    43 |   946 | 44467   (1)| 00:08:54 |       |       |
+|* 10 |           FILTER                             |                              |       |       |            |          |       |       |
+|  11 |            PARTITION RANGE ITERATOR          |                              |    43 |   946 | 44466   (1)| 00:08:54 |   KEY |   KEY |
+|  12 |             TABLE ACCESS BY LOCAL INDEX ROWID| RISKAUDIT_OPERATE_HISTORY    |    43 |   946 | 44466   (1)| 00:08:54 |   KEY |   KEY |
+|* 13 |              INDEX SKIP SCAN                 | PK_RISKAUDIT_OPERATE_HIST    |    41 |       | 44465   (1)| 00:08:54 |   KEY |   KEY |
+|  14 |        PARTITION RANGE ALL                   |                              |     1 |    17 |     9   (0)| 00:00:01 |     1 |1048575|
+|* 15 |         TABLE ACCESS BY LOCAL INDEX ROWID    | RISKAUDIT_OPERATE_HISTORY    |     1 |    17 |     9   (0)| 00:00:01 |     1 |1048575|
+|* 16 |          INDEX RANGE SCAN                    | PK_RISKAUDIT_OPERATE_HIST    |     1 |       |     9   (0)| 00:00:01 |     1 |1048575|
+|  17 |       TABLE ACCESS BY GLOBAL INDEX ROWID     | WITHDRAWWORKORDER            |     1 |    15 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 18 |        INDEX RANGE SCAN                      | IDX_WITHDRAWWORK_ORDERSEQID1 |     1 |       |     1   (0)| 00:00:01 |       |       |
+|* 19 |      INDEX UNIQUE SCAN                       | PK_MEMBER                    |     1 |     8 |     1   (0)| 00:00:01 |       |       |
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(ROWNUM<=:3)
+   3 - filter(ROWNUM<=:3)
+  10 - filter(TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss')>=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss'))
+  13 - access("ROH"."PROCESSDATE">=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss') AND "ROH"."PROCESSDATE"<=TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss'))
+       filter("ROH"."PROCESSDATE">=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss') AND "ROH"."PROCESSDATE"<=TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss'))
+  15 - filter("HS"."CURSTATUS"=2 OR "HS"."CURSTATUS"=3 OR "HS"."CURSTATUS"=4)
+  16 - access("HS"."ID"="MID")
+  18 - access("WO"."ORDERSEQID"="HS"."ORDERSEQID")
+  19 - access("MM"."MEMBERCODE"="WO"."MEMBERCODE")
+
+2- Using New Indices
+--------------------
+Plan hash value: 2597182506
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                    | Name                         | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+---------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                             |                              |     1 |    13 |   397   (1)| 00:00:05 |       |       |
+|*  1 |  COUNT STOPKEY                               |                              |       |       |            |          |       |       |
+|   2 |   VIEW                                       |                              |     1 |    13 |   397   (1)| 00:00:05 |       |       |
+|*  3 |    SORT AGGREGATE                            |                              |     1 |    53 |            |          |       |       |
+|   4 |     NESTED LOOPS                             |                              |    43 |  2279 |   397   (1)| 00:00:05 |       |       |
+|   5 |      NESTED LOOPS                            |                              |    43 |  1935 |   396   (1)| 00:00:05 |       |       |
+|   6 |       NESTED LOOPS                           |                              |    43 |  1290 |   390   (1)| 00:00:05 |       |       |
+|   7 |        VIEW                                  | VW_NSO_1                     |    43 |   559 |     3  (34)| 00:00:01 |       |       |
+|   8 |         HASH UNIQUE                          |                              |    43 |   946 |     3  (34)| 00:00:01 |       |       |
+|   9 |          HASH GROUP BY                       |                              |    43 |   946 |     3  (34)| 00:00:01 |       |       |
+|* 10 |           FILTER                             |                              |       |       |            |          |       |       |
+|  11 |            TABLE ACCESS BY GLOBAL INDEX ROWID| RISKAUDIT_OPERATE_HISTORY    |    43 |   946 |     2   (0)| 00:00:01 | ROWID | ROWID |
+|* 12 |             INDEX RANGE SCAN                 | IDX$$_6C5F90001              |    41 |       |     1   (0)| 00:00:01 |       |       |
+|  13 |        PARTITION RANGE ALL                   |                              |     1 |    17 |     9   (0)| 00:00:01 |     1 |1048575|
+|* 14 |         TABLE ACCESS BY LOCAL INDEX ROWID    | RISKAUDIT_OPERATE_HISTORY    |     1 |    17 |     9   (0)| 00:00:01 |     1 |1048575|
+|* 15 |          INDEX RANGE SCAN                    | PK_RISKAUDIT_OPERATE_HIST    |     1 |       |     9   (0)| 00:00:01 |     1 |1048575|
+|  16 |       TABLE ACCESS BY GLOBAL INDEX ROWID     | WITHDRAWWORKORDER            |     1 |    15 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 17 |        INDEX RANGE SCAN                      | IDX_WITHDRAWWORK_ORDERSEQID1 |     1 |       |     1   (0)| 00:00:01 |       |       |
+|* 18 |      INDEX UNIQUE SCAN                       | PK_MEMBER                    |     1 |     8 |     1   (0)| 00:00:01 |       |       |
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(ROWNUM<=:3)
+   3 - filter(ROWNUM<=:3)
+  10 - filter(TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss')>=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss'))
+  12 - access("ROH"."PROCESSDATE">=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss') AND "ROH"."PROCESSDATE"<=TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss'))
+  14 - filter("HS"."CURSTATUS"=2 OR "HS"."CURSTATUS"=3 OR "HS"."CURSTATUS"=4)
+  15 - access("HS"."ID"="MID")
+  17 - access("WO"."ORDERSEQID"="HS"."ORDERSEQID")
+  18 - access("MM"."MEMBERCODE"="WO"."MEMBERCODE")
+
+3- Using Parallel Execution
+---------------------------
+Plan hash value: 2760860917
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                          | Name                         | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     | Pstart| Pstop |    TQ  |IN-OUT| PQ Distrib |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                                   |                              |     1 |    13 |       |   816   (1)| 00:00:10 |       |       |        |      |            |
+|*  1 |  COUNT STOPKEY                                     |                              |       |       |       |            |          |       |       |        |      |            |
+|   2 |   VIEW                                             |                              |     1 |    13 |       |   816   (1)| 00:00:10 |       |       |        |      |            |
+|*  3 |    SORT AGGREGATE                                  |                              |     1 |    53 |       |            |          |       |       |        |      |            |
+|   4 |     PX COORDINATOR                                 |                              |       |       |       |            |          |       |       |        |      |            |
+|   5 |      PX SEND QC (RANDOM)                           | :TQ10003                     |     1 |    53 |       |            |          |       |       |  Q1,03 | P->S | QC (RAND)  |
+|   6 |       SORT AGGREGATE                               |                              |     1 |    53 |       |            |          |       |       |  Q1,03 | PCWP |            |
+|   7 |        NESTED LOOPS                                |                              |     1 |    53 |       |   816   (1)| 00:00:10 |       |       |  Q1,03 | PCWP |            |
+|   8 |         NESTED LOOPS                               |                              |     1 |    45 |       |   816   (1)| 00:00:10 |       |       |  Q1,03 | PCWP |            |
+|*  9 |          HASH JOIN RIGHT SEMI                      |                              |     1 |    30 |       |   816   (1)| 00:00:10 |       |       |  Q1,03 | PCWP |            |
+|  10 |           PX RECEIVE                               |                              |  1039K|    12M|       |   194   (1)| 00:00:03 |       |       |  Q1,03 | PCWP |            |
+|  11 |            PX SEND HASH                            | :TQ10001                     |  1039K|    12M|       |   194   (1)| 00:00:03 |       |       |  Q1,01 | P->P | HASH       |
+|  12 |             VIEW                                   | VW_NSO_1                     |  1039K|    12M|       |   194   (1)| 00:00:03 |       |       |  Q1,01 | PCWP |            |
+|  13 |              HASH GROUP BY                         |                              |  1039K|    21M|    31M|   194   (1)| 00:00:03 |       |       |  Q1,01 | PCWP |            |
+|  14 |               PX RECEIVE                           |                              |  1041K|    21M|       |   193   (0)| 00:00:03 |       |       |  Q1,01 | PCWP |            |
+|  15 |                PX SEND HASH                        | :TQ10000                     |  1041K|    21M|       |   193   (0)| 00:00:03 |       |       |  Q1,00 | P->P | HASH       |
+|* 16 |                 FILTER                             |                              |       |       |       |            |          |       |       |  Q1,00 | PCWC |            |
+|  17 |                  PX PARTITION RANGE ITERATOR       |                              |  1041K|    21M|       |   193   (0)| 00:00:03 |   KEY |   KEY |  Q1,00 | PCWC |            |
+|  18 |                   TABLE ACCESS BY LOCAL INDEX ROWID| RISKAUDIT_OPERATE_HISTORY    |  1041K|    21M|       |   193   (0)| 00:00:03 |   KEY |   KEY |  Q1,00 | PCWP |            |
+|* 19 |                    INDEX SKIP SCAN                 | PK_RISKAUDIT_OPERATE_HIST    |    41 |       |       |   193   (0)| 00:00:03 |   KEY |   KEY |  Q1,00 | PCWP |            |
+|  20 |           PX RECEIVE                               |                              |    75M|  1227M|       |   621   (1)| 00:00:08 |       |       |  Q1,03 | PCWP |            |
+|  21 |            PX SEND HASH                            | :TQ10002                     |    75M|  1227M|       |   621   (1)| 00:00:08 |       |       |  Q1,02 | P->P | HASH       |
+|  22 |             PX BLOCK ITERATOR                      |                              |    75M|  1227M|       |   621   (1)| 00:00:08 |     1 |1048575|  Q1,02 | PCWC |            |
+|* 23 |              TABLE ACCESS FULL                     | RISKAUDIT_OPERATE_HISTORY    |    75M|  1227M|       |   621   (1)| 00:00:08 |     1 |1048575|  Q1,02 | PCWP |            |
+|  24 |          TABLE ACCESS BY GLOBAL INDEX ROWID        | WITHDRAWWORKORDER            |     1 |    15 |       |     0   (0)| 00:00:01 | ROWID | ROWID |  Q1,03 | PCWP |            |
+|* 25 |           INDEX RANGE SCAN                         | IDX_WITHDRAWWORK_ORDERSEQID1 |     1 |       |       |     0   (0)| 00:00:01 |       |       |  Q1,03 | PCWP |            |
+|* 26 |         INDEX UNIQUE SCAN                          | PK_MEMBER                    |     1 |     8 |       |     0   (0)| 00:00:01 |       |       |  Q1,03 | PCWP |            |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(ROWNUM<=:3)
+   3 - filter(ROWNUM<=:3)
+   9 - access("HS"."ID"="MID")
+  16 - filter(TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss')>=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss'))
+  19 - access("ROH"."PROCESSDATE">=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss') AND "ROH"."PROCESSDATE"<=TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss'))
+       filter("ROH"."PROCESSDATE">=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss') AND "ROH"."PROCESSDATE"<=TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss'))
+  23 - filter("HS"."CURSTATUS"=2 OR "HS"."CURSTATUS"=3 OR "HS"."CURSTATUS"=4)
+  25 - access("WO"."ORDERSEQID"="HS"."ORDERSEQID")
+  26 - access("MM"."MEMBERCODE"="WO"."MEMBERCODE")
+
+-------------------------------------------------------------------------------
+ALTERNATIVE PLANS SECTION
+-------------------------------------------------------------------------------
+
+Plan 5
+------
+
+  Plan Origin                 :Cursor Cache
+  Plan Hash Value             :3928562966
+  Executions                  :2
+  Elapsed Time                :283.511 sec
+  CPU Time                    :141.997 sec
+  Buffer Gets                 :92065042
+  Disk Reads                  :38391
+  Disk Writes                 :0
+
+Notes:
+  1. Statistics shown are averaged over multiple executions.
+  2. The plan matches the original plan.
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                    | Name                         | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+---------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                             |                              |     1 |    13 | 44861   (1)| 00:08:59 |       |       |
+|*  1 |  COUNT STOPKEY                               |                              |       |       |            |          |       |       |
+|   2 |   VIEW                                       |                              |     1 |    13 | 44861   (1)| 00:08:59 |       |       |
+|*  3 |    SORT AGGREGATE                            |                              |     1 |    53 |            |          |       |       |
+|   4 |     NESTED LOOPS                             |                              |    43 |  2279 | 44861   (1)| 00:08:59 |       |       |
+|   5 |      NESTED LOOPS                            |                              |    43 |  1935 | 44860   (1)| 00:08:59 |       |       |
+|   6 |       NESTED LOOPS                           |                              |    43 |  1290 | 44854   (1)| 00:08:59 |       |       |
+|   7 |        VIEW                                  | VW_NSO_1                     |    43 |   559 | 44467   (1)| 00:08:54 |       |       |
+|   8 |         HASH UNIQUE                          |                              |    43 |   946 | 44467   (1)| 00:08:54 |       |       |
+|   9 |          HASH GROUP BY                       |                              |    43 |   946 | 44467   (1)| 00:08:54 |       |       |
+|* 10 |           FILTER                             |                              |       |       |            |          |       |       |
+|  11 |            PARTITION RANGE ITERATOR          |                              |    43 |   946 | 44466   (1)| 00:08:54 |   KEY |   KEY |
+|  12 |             TABLE ACCESS BY LOCAL INDEX ROWID| RISKAUDIT_OPERATE_HISTORY    |    43 |   946 | 44466   (1)| 00:08:54 |   KEY |   KEY |
+|* 13 |              INDEX SKIP SCAN                 | PK_RISKAUDIT_OPERATE_HIST    |    41 |       | 44465   (1)| 00:08:54 |   KEY |   KEY |
+|  14 |        PARTITION RANGE ALL                   |                              |     1 |    17 |     9   (0)| 00:00:01 |     1 |1048575|
+|* 15 |         TABLE ACCESS BY LOCAL INDEX ROWID    | RISKAUDIT_OPERATE_HISTORY    |     1 |    17 |     9   (0)| 00:00:01 |     1 |1048575|
+|* 16 |          INDEX RANGE SCAN                    | PK_RISKAUDIT_OPERATE_HIST    |     1 |       |     9   (0)| 00:00:01 |     1 |1048575|
+|  17 |       TABLE ACCESS BY GLOBAL INDEX ROWID     | WITHDRAWWORKORDER            |     1 |    15 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 18 |        INDEX RANGE SCAN                      | IDX_WITHDRAWWORK_ORDERSEQID1 |     1 |       |     1   (0)| 00:00:01 |       |       |
+|* 19 |      INDEX UNIQUE SCAN                       | PK_MEMBER                    |     1 |     8 |     1   (0)| 00:00:01 |       |       |
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(ROWNUM<=:3)
+   3 - filter(ROWNUM<=:3)
+  10 - filter(TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss')>=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss'))
+  13 - access("ROH"."PROCESSDATE">=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss') AND "ROH"."PROCESSDATE"<=TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss'))
+       filter("ROH"."PROCESSDATE">=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss') AND "ROH"."PROCESSDATE"<=TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss'))
+  15 - filter("HS"."CURSTATUS"=2 OR "HS"."CURSTATUS"=3 OR "HS"."CURSTATUS"=4)
+  16 - access("HS"."ID"="MID")
+  18 - access("WO"."ORDERSEQID"="HS"."ORDERSEQID")
+  19 - access("MM"."MEMBERCODE"="WO"."MEMBERCODE")
+
+Plan 4
+------
+
+  Plan Origin                 :AWR
+  Plan Hash Value             :4238546737
+  Executions                  :2
+  Elapsed Time                :208.755 sec
+  CPU Time                    :48.520 sec
+  Buffer Gets                 :3624574
+  Disk Reads                  :555940
+  Disk Writes                 :0
+
+Notes:
+  1. Statistics shown are averaged over multiple executions.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                               | Name                         | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+----------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                        |                              |     1 |    13 |   295K  (2)| 00:59:04 |       |       |
+|*  1 |  COUNT STOPKEY                          |                              |       |       |            |          |       |       |
+|   2 |   VIEW                                  |                              |     1 |    13 |   295K  (2)| 00:59:04 |       |       |
+|*  3 |    SORT AGGREGATE                       |                              |     1 |    53 |            |          |       |       |
+|   4 |     NESTED LOOPS                        |                              |     1 |    53 |   295K  (2)| 00:59:04 |       |       |
+|   5 |      NESTED LOOPS                       |                              |     1 |    45 |   295K  (2)| 00:59:04 |       |       |
+|*  6 |       HASH JOIN RIGHT SEMI              |                              |     1 |    30 |   295K  (2)| 00:59:04 |       |       |
+|   7 |        VIEW                             | VW_NSO_1                     |    43 |   559 |   151K  (2)| 00:30:22 |       |       |
+|   8 |         HASH GROUP BY                   |                              |    43 |   946 |   151K  (2)| 00:30:22 |       |       |
+|*  9 |          FILTER                         |                              |       |       |            |          |       |       |
+|  10 |           PARTITION RANGE ITERATOR      |                              |    43 |   946 |   151K  (2)| 00:30:22 |   KEY |   KEY |
+|* 11 |            TABLE ACCESS FULL            | RISKAUDIT_OPERATE_HISTORY    |    43 |   946 |   151K  (2)| 00:30:22 |   KEY |   KEY |
+|  12 |        PARTITION RANGE ALL              |                              |    75M|  1227M|   143K  (1)| 00:28:38 |     1 |1048575|
+|* 13 |         TABLE ACCESS FULL               | RISKAUDIT_OPERATE_HISTORY    |    75M|  1227M|   143K  (1)| 00:28:38 |     1 |1048575|
+|  14 |       TABLE ACCESS BY GLOBAL INDEX ROWID| WITHDRAWWORKORDER            |     1 |    15 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 15 |        INDEX RANGE SCAN                 | IDX_WITHDRAWWORK_ORDERSEQID1 |     1 |       |     1   (0)| 00:00:01 |       |       |
+|* 16 |      INDEX UNIQUE SCAN                  | PK_MEMBER                    |     1 |     8 |     1   (0)| 00:00:01 |       |       |
+----------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(ROWNUM<=:3)
+   3 - filter(ROWNUM<=:3)
+   6 - access("HS"."ID"="MID")
+   9 - filter(TO_DATE(:2,'yyyy-mm-dd hh24:mi:ss')>=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss'))
+  11 - filter("ROH"."PROCESSDATE">=TO_DATE(:1,'yyyy-mm-dd hh24:mi:ss') AND "ROH"."PROCESSDATE"<=TO_DATE(:2,'yyyy-mm-dd
+              hh24:mi:ss'))
+  13 - filter("HS"."CURSTATUS"=2 OR "HS"."CURSTATUS"=3 OR "HS"."CURSTATUS"=4)
+  15 - access("WO"."ORDERSEQID"="HS"."ORDERSEQID")
+  16 - access("MM"."MEMBERCODE"="WO"."MEMBERCODE")
+
+Plan 1
+------
+
+  Plan Origin                 :STS
+  Plan Hash Value             :260692140
+  Executions                  :17
+  Elapsed Time                :9.470 sec
+  CPU Time                    :1.896 sec
+  Buffer Gets                 :221011
+  Disk Reads                  :5039
+  Disk Writes                 :0
+
+Notes:
+  1. Statistics shown are averaged over multiple executions.
+  2. 在当前环境中无法重新生成具有 ID 1 的计划。由于此原因, 无法创建 SQL 计划基线以指示 Oracle 优化程序在将来选取该计划。
+
+----------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                               | Name                         | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+----------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                        |                              |       |       |  4588 (100)|          |       |       |
+|   1 |  COUNT STOPKEY                          |                              |       |       |            |          |       |       |
+|   2 |   VIEW                                  |                              |     1 |    13 |  4588   (1)| 00:00:56 |       |       |
+|   3 |    SORT AGGREGATE                       |                              |     1 |    52 |            |          |       |       |
+|   4 |     NESTED LOOPS                        |                              | 23895 |  1213K|  4588   (1)| 00:00:56 |       |       |
+|   5 |      NESTED LOOPS                       |                              | 24550 |  1054K|  4587   (1)| 00:00:56 |       |       |
+|   6 |       HASH JOIN                         |                              | 24550 |   695K|   903   (2)| 00:00:11 |       |       |
+|   7 |        VIEW                             | VW_NSO_1                     | 24550 |   311K|   143   (4)| 00:00:02 |       |       |
+|   8 |         HASH GROUP BY                   |                              | 24550 |   503K|   143   (4)| 00:00:02 |       |       |
+|   9 |          FILTER                         |                              |       |       |            |          |       |       |
+|  10 |           PARTITION RANGE ITERATOR      |                              | 24550 |   503K|   142   (3)| 00:00:02 |   KEY |   KEY |
+|  11 |            TABLE ACCESS FULL            | RISKAUDIT_OPERATE_HISTORY    | 24550 |   503K|   142   (3)| 00:00:02 |   KEY |   KEY |
+|  12 |        PARTITION RANGE ALL              |                              |   492K|  7692K|   757   (1)| 00:00:10 |     1 |     4 |
+|  13 |         TABLE ACCESS FULL               | RISKAUDIT_OPERATE_HISTORY    |   492K|  7692K|   757   (1)| 00:00:10 |     1 |     4 |
+|  14 |       TABLE ACCESS BY GLOBAL INDEX ROWID| WITHDRAWWORKORDER            |     1 |    15 |     1   (0)| 00:00:01 | ROW L | ROW L |
+|  15 |        INDEX RANGE SCAN                 | IDX_WITHDRAWWORK_ORDERSEQID1 |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  16 |      INDEX UNIQUE SCAN                  | PK_MEMBER                    |     1 |     8 |     1   (0)| 00:00:01 |       |       |
+----------------------------------------------------------------------------------------------------------------------------------------
+
+Plan 2
+------
+
+  Plan Origin                 :STS
+  Plan Hash Value             :3005778933
+  Executions                  :253
+  Elapsed Time                :22.705 sec
+  CPU Time                    :2.304 sec
+  Buffer Gets                 :263625
+  Disk Reads                  :6064
+  Disk Writes                 :17
+
+Notes:
+  1. Statistics shown are averaged over multiple executions.
+  2. 无法重新生成此计划, 因为缺少 the object "IDX_RISKAUDITOHS_PROCESSDATE" with type "INDEX"。
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                   | Name                         | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     | Pstart| Pstop |
+----------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                            |                              |       |       |       |  7847 (100)|          |       |       |
+|   1 |  COUNT STOPKEY                              |                              |       |       |       |            |          |       |       |
+|   2 |   VIEW                                      |                              |     1 |    13 |       |  7847   (1)| 00:01:35 |       |       |
+|   3 |    SORT AGGREGATE                           |                              |     1 |    52 |       |            |          |       |       |
+|   4 |     NESTED LOOPS                            |                              | 40062 |  2034K|       |  7847   (1)| 00:01:35 |       |       |
+|   5 |      NESTED LOOPS                           |                              | 41160 |  1768K|       |  7845   (1)| 00:01:35 |       |       |
+|   6 |       HASH JOIN                             |                              | 41160 |  1165K|       |  1669   (1)| 00:00:21 |       |       |
+|   7 |        VIEW                                 | VW_NSO_1                     | 41160 |   522K|       |   840   (1)| 00:00:11 |       |       |
+|   8 |         HASH GROUP BY                       |                              | 41160 |   844K|  2600K|   840   (1)| 00:00:11 |       |       |
+|   9 |          FILTER                             |                              |       |       |       |            |          |       |       |
+|  10 |           PARTITION RANGE ITERATOR          |                              | 41160 |   844K|       |   572   (0)| 00:00:07 |   KEY |   KEY |
+|  11 |            TABLE ACCESS BY LOCAL INDEX ROWID| RISKAUDIT_OPERATE_HISTORY    | 41160 |   844K|       |   572   (0)| 00:00:07 |   KEY |   KEY |
+|  12 |             INDEX RANGE SCAN                | IDX_RISKAUDITOHS_PROCESSDATE | 41160 |       |       |    36   (0)| 00:00:01 |   KEY |   KEY |
+|  13 |        PARTITION RANGE ALL                  |                              |   525K|  8217K|       |   826   (1)| 00:00:10 |     1 |    15 |
+|  14 |         TABLE ACCESS FULL                   | RISKAUDIT_OPERATE_HISTORY    |   525K|  8217K|       |   826   (1)| 00:00:10 |     1 |    15 |
+|  15 |       TABLE ACCESS BY GLOBAL INDEX ROWID    | WITHDRAWWORKORDER            |     1 |    15 |       |     1   (0)| 00:00:01 | ROW L | ROW L |
+|  16 |        INDEX RANGE SCAN                     | IDX_WITHDRAWWORK_ORDERSEQID1 |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  17 |      INDEX UNIQUE SCAN                      | PK_MEMBER                    |     1 |     8 |       |     1   (0)| 00:00:01 |       |       |
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Plan 3
+------
+
+  Plan Origin                 :STS
+  Plan Hash Value             :934563782
+  Executions                  :1
+  Elapsed Time                :72.329 sec
+  CPU Time                    :18.551 sec
+  Buffer Gets                 :5223686
+  Disk Reads                  :38203
+  Disk Writes                 :0
+
+Notes:
+  1. Statistics shown are averaged over multiple executions.
+  2. 在当前环境中无法重新生成具有 ID 3 的计划。由于此原因, 无法创建 SQL 计划基线以指示 Oracle 优化程序在将来选取该计划。
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                | Name                         | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     | Pstart| Pstop |
+-------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                         |                              |       |       |       |  5048 (100)|          |       |       |
+|   1 |  COUNT STOPKEY                           |                              |       |       |       |            |          |       |       |
+|   2 |   VIEW                                   |                              |     1 |    13 |       |  5048   (2)| 00:01:01 |       |       |
+|   3 |    SORT AGGREGATE                        |                              |     1 |    52 |       |            |          |       |       |
+|   4 |     NESTED LOOPS                         |                              |     1 |    52 |       |  5048   (2)| 00:01:01 |       |       |
+|   5 |      NESTED LOOPS                        |                              |     1 |    44 |       |  5047   (2)| 00:01:01 |       |       |
+|   6 |       NESTED LOOPS                       |                              |     1 |    29 |       |  5046   (2)| 00:01:01 |       |       |
+|   7 |        VIEW                              | VW_NSO_1                     |   495K|  6286K|       |  5042   (2)| 00:01:01 |       |       |
+|   8 |         HASH GROUP BY                    |                              |   495K|     9M|    21M|  5042   (2)| 00:01:01 |       |       |
+|   9 |          FILTER                          |                              |       |       |       |            |          |       |       |
+|  10 |           PARTITION RANGE ITERATOR       |                              |   714K|    14M|       |  1337   (3)| 00:00:17 |   KEY |   KEY |
+|  11 |            TABLE ACCESS FULL             | RISKAUDIT_OPERATE_HISTORY    |   714K|    14M|       |  1337   (3)| 00:00:17 |   KEY |   KEY |
+|  12 |        TABLE ACCESS BY GLOBAL INDEX ROWID| RISKAUDIT_OPERATE_HISTORY    |     1 |    16 |       |     1   (0)| 00:00:01 |ROW LOC| ROWID |
+|  13 |         INDEX UNIQUE SCAN                | PK_RISKAUDITOPERATE          |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  14 |       TABLE ACCESS BY GLOBAL INDEX ROWID | WITHDRAWWORKORDER            |     1 |    15 |       |     1   (0)| 00:00:01 |ROW LOC| ROWID |
+|  15 |        INDEX RANGE SCAN                  | IDX_WITHDRAWWORK_ORDERSEQID1 |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  16 |      INDEX UNIQUE SCAN                   | PK_MEMBER                    |     1 |     8 |       |     1   (0)| 00:00:01 |       |       |
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
+

@@ -1,0 +1,276 @@
+
+GENERAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+Tuning Task Name   : TASK_445112
+Tuning Task Owner  : DBASTEVE
+Workload Type      : Single SQL Statement
+Scope              : COMPREHENSIVE
+Time Limit(seconds): 1800
+Completion Status  : COMPLETED
+Started at         : 09/29/2017 00:06:28
+Completed at       : 09/29/2017 00:07:46
+
+-------------------------------------------------------------------------------
+Schema Name: DDP
+SQL ID     : cmwam5n8k2nu3
+SQL Text   : select * from ( select i.ID,i.CREATETIME,o.AMOUNT,o.ORDERSEQID,o.
+             DEALID,b.MERCHANTACCTID,b.MEMBERCODE,o.DEBITTIME,i.BANKID,i.ORGCO
+             DE,i.CURTYPE,i.merchantcontractno,o.PRODUCTNAME,o.STATUS,i.PAYERA
+             CCTCODE,i.PAYERACCTNAME,i.PAYERACCTTYPE,i.USAGE,i.REMARK,o.FAILRE
+             ASON,o.SETTLEMENTDAY,o.BANKPROTOCOLID,i.IDCODE,b.REQUESTCHANEL,i.
+             acctype,b.TRXCODE,o.SETTLESTATUS,i.idtype,c.membername,i.seqno,b.
+             requestid,o.balance,c.idcontent,i.amount as
+             applyAmount,d.settlementacct,d.settlementcardno,d.settlementbank,
+             b.sequenceno,o.settlementtime,i.merchantorderno,(select
+             membername from DEBITCONTRACT where membercode=b.MEMBERCODE and
+             status=1 and rownum=1) contractmembername,i.cardbinvalidate,i.val
+             idateerror,o.refundamount,b.status batchreqstatus,w.Failreason
+             workFailreason,i.Status Itemstatus,i.fee from
+             DEBITBATCHREQUESTITEM i Join DEBITBATCHREQUEST b On
+             i.debitBatchRequestId = b.ID Left Join DIRECTDEBITORDER o On
+             o.ID = i.debitOrderId Left Join DEBITMERCHANTCONTRACT d On
+             o.merchantcontractid = d.id Left Join (select * from
+             DEBITCONTRACT where status = 1) c On b.MEMBERCODE = c.membercode
+             Left Join Debitrequest r On r.Requestid = To_Char(o.Id)  And
+             r.applicationid = o.applicationid Left Join Debitworkorder w On
+             r.Id = w.Debitrequestid where i.ID is not Null and i.createTime
+             >= :1  and i.createTime <= :2  and c.membername like :3  And
+             Rownum <= 300 order by i.createtime desc ) where rownum <= :4
+Bind Variables :
+ 3 -  (VARCHAR2(128)):%快钱支付清算信息有限公司客户备付金%
+ 4 -  (NUMBER):20
+
+-------------------------------------------------------------------------------
+FINDINGS SECTION (2 findings)
+-------------------------------------------------------------------------------
+
+1- SQL Profile Finding (see explain plans section below)
+--------------------------------------------------------
+  为此语句找到了性能更好的执行计划。
+
+  Recommendation (estimated benefit: 99.7%)
+  -----------------------------------------
+  - 考虑接受推荐的 SQL 概要文件。
+    execute dbms_sqltune.accept_sql_profile(task_name => 'TASK_445112',
+            task_owner => 'DBASTEVE', replace => TRUE);
+
+  Validation results
+  ------------------
+  已对 SQL profile 进行测试, 方法为执行其计划和原始计划并测量与计划相对应的执行统计信息。如果其中一个计划运行在很短的时间内就完成,
+  则另一计划可能只执行了一部分。
+
+                           Original Plan  With SQL Profile  % Improved
+                           -------------  ----------------  ----------
+  Completion Status:            COMPLETE          COMPLETE
+  Elapsed Time (s):            9.805011           .118887      98.78 %
+  CPU Time (s):                3.987308           .073245      98.16 %
+  User I/O Time (s):           3.227767                 0        100 %
+  Buffer Gets:                  1574418              4621       99.7 %
+  Physical Read Requests:          2706                 0        100 %
+  Physical Write Requests:            0                 0
+  Physical Read Bytes:         22167552                 0        100 %
+  Physical Write Bytes:               0                 0
+  Rows Processed:                     0                 0
+  Fetches:                            0                 0
+  Executions:                         1                 1
+
+  Notes
+  -----
+  1. the original plan 的统计信息是 1 执行的平均值。
+  2. the SQL profile plan 的统计信息是 9 执行的平均值。
+
+2- Index Finding (see explain plans section below)
+--------------------------------------------------
+  通过创建一个或多个索引可以改进此语句的执行计划。
+
+  Recommendation (estimated benefit: 97.1%)
+  -----------------------------------------
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index DDP.IDX$$_6CAB80001 on DDP.DEBITCONTRACT(TO_NUMBER("MEMBERCODE
+    "),"STATUS");
+
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index DDP.IDX$$_6CAB80002 on DDP.DEBITBATCHREQUESTITEM("CREATETIME")
+    ;
+
+  Rationale
+  ---------
+    创建推荐的索引可以显著地改进此语句的执行计划。但是, 使用典型的 SQL 工作量运行 "访问指导"
+    可能比单个语句更可取。通过这种方法可以获得全面的索引建议案, 包括计算索引维护的开销和附加的空间消耗。
+
+-------------------------------------------------------------------------------
+ADDITIONAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+- 优化程序不能合并位于执行计划的行 ID 4 处的视图。. 优化程序不能合并包含 "ROWNUM" 伪列的视图。.
+
+-------------------------------------------------------------------------------
+EXPLAIN PLANS SECTION
+-------------------------------------------------------------------------------
+
+1- Original With Adjusted Cost
+------------------------------
+Plan hash value: 671215165
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                     | Name                       | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+--------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                              |                            |     1 |  3476 |  4864   (1)| 00:00:59 |       |       |
+|*  1 |  COUNT STOPKEY                                |                            |       |       |            |          |       |       |
+|*  2 |   TABLE ACCESS FULL                           | DEBITCONTRACT              |     1 |    46 |    36   (0)| 00:00:01 |       |       |
+|*  3 |  COUNT STOPKEY                                |                            |       |       |            |          |       |       |
+|   4 |   VIEW                                        |                            |     1 |  3476 |  4864   (1)| 00:00:59 |       |       |
+|*  5 |    SORT ORDER BY STOPKEY                      |                            |     1 |  1006 |  4864   (1)| 00:00:59 |       |       |
+|*  6 |     COUNT STOPKEY                             |                            |       |       |            |          |       |       |
+|*  7 |      FILTER                                   |                            |       |       |            |          |       |       |
+|   8 |       NESTED LOOPS OUTER                      |                            |     1 |  1006 |  4863   (1)| 00:00:59 |       |       |
+|   9 |        NESTED LOOPS OUTER                     |                            |     1 |   991 |  4862   (1)| 00:00:59 |       |       |
+|* 10 |         HASH JOIN                             |                            |     1 |   969 |  4861   (1)| 00:00:59 |       |       |
+|  11 |          NESTED LOOPS OUTER                   |                            |     1 |   903 |  4825   (1)| 00:00:58 |       |       |
+|  12 |           NESTED LOOPS OUTER                  |                            |     1 |   845 |  4824   (1)| 00:00:58 |       |       |
+|  13 |            NESTED LOOPS                       |                            |     1 |   486 |  4823   (1)| 00:00:58 |       |       |
+|  14 |             PARTITION RANGE ITERATOR          |                            |  2606 |   860K|  4822   (1)| 00:00:58 |   KEY |   KEY |
+|* 15 |              TABLE ACCESS FULL                | DEBITBATCHREQUESTITEM      |  2606 |   860K|  4822   (1)| 00:00:58 |   KEY |   KEY |
+|  16 |             TABLE ACCESS BY GLOBAL INDEX ROWID| DEBITBATCHREQUEST          |     1 |   148 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 17 |              INDEX UNIQUE SCAN                | PK_DEBITBATCHREQUEST_ID    |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  18 |            TABLE ACCESS BY GLOBAL INDEX ROWID | DIRECTDEBITORDER           |     1 |   359 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 19 |             INDEX UNIQUE SCAN                 | PK_DIRECTDEBITORDER_N_ID   |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  20 |           TABLE ACCESS BY INDEX ROWID         | DEBITMERCHANTCONTRACT      |     1 |    58 |     1   (0)| 00:00:01 |       |       |
+|* 21 |            INDEX UNIQUE SCAN                  | SYS_C0052200               |     1 |       |     1   (0)| 00:00:01 |       |       |
+|* 22 |          TABLE ACCESS FULL                    | DEBITCONTRACT              |     1 |    66 |    36   (0)| 00:00:01 |       |       |
+|  23 |         TABLE ACCESS BY GLOBAL INDEX ROWID    | DEBITREQUEST               |     1 |    22 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 24 |          INDEX UNIQUE SCAN                    | IDX_DEBITREQUEST_N_SEQNO   |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  25 |        TABLE ACCESS BY GLOBAL INDEX ROWID     | DEBITWORKORDER             |     1 |    15 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 26 |         INDEX UNIQUE SCAN                     | IDX_DEBITWO_DEBITREQUESTID |     1 |       |     1   (0)| 00:00:01 |       |       |
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(ROWNUM=1)
+   2 - filter("STATUS"=1 AND TO_NUMBER("MEMBERCODE")=:B1)
+   3 - filter(ROWNUM<=:4)
+   5 - filter(ROWNUM<=:4)
+   6 - filter(ROWNUM<=300)
+   7 - filter(:2>=:1)
+  10 - access("B"."MEMBERCODE"=TO_NUMBER("DEBITCONTRACT"."MEMBERCODE"))
+  15 - filter("I"."CREATETIME">=:1 AND "I"."CREATETIME"<=:2)
+  17 - access("I"."DEBITBATCHREQUESTID"="B"."ID")
+  19 - access("O"."ID"(+)="I"."DEBITORDERID")
+  21 - access("O"."MERCHANTCONTRACTID"="D"."ID"(+))
+  22 - filter("DEBITCONTRACT"."MEMBERNAME" LIKE :3 AND "STATUS"=1)
+  24 - access("R"."REQUESTID"(+)=TO_CHAR("O"."ID") AND "R"."APPLICATIONID"(+)=TO_NUMBER("O"."APPLICATIONID"))
+  26 - access("R"."ID"="W"."DEBITREQUESTID"(+))
+
+2- Using SQL Profile
+--------------------
+Plan hash value: 4064708403
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                     | Name                          | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+-----------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                              |                               |     1 |  3476 |   601   (1)| 00:00:08 |       |       |
+|*  1 |  COUNT STOPKEY                                |                               |       |       |            |          |       |       |
+|*  2 |   TABLE ACCESS FULL                           | DEBITCONTRACT                 |     1 |    46 |    36   (0)| 00:00:01 |       |       |
+|*  3 |  COUNT STOPKEY                                |                               |       |       |            |          |       |       |
+|   4 |   VIEW                                        |                               |     1 |  3476 |   601   (1)| 00:00:08 |       |       |
+|*  5 |    SORT ORDER BY STOPKEY                      |                               |     1 |  1006 |   601   (1)| 00:00:08 |       |       |
+|*  6 |     COUNT STOPKEY                             |                               |       |       |            |          |       |       |
+|*  7 |      FILTER                                   |                               |       |       |            |          |       |       |
+|   8 |       NESTED LOOPS OUTER                      |                               |     1 |  1006 |   600   (0)| 00:00:08 |       |       |
+|   9 |        NESTED LOOPS OUTER                     |                               |     1 |   991 |   599   (0)| 00:00:08 |       |       |
+|  10 |         NESTED LOOPS OUTER                    |                               |     1 |   969 |   598   (0)| 00:00:08 |       |       |
+|  11 |          NESTED LOOPS OUTER                   |                               |     1 |   911 |   597   (0)| 00:00:08 |       |       |
+|  12 |           NESTED LOOPS                        |                               |     1 |   552 |   596   (0)| 00:00:08 |       |       |
+|  13 |            NESTED LOOPS                       |                               | 10240 |  2140K|   595   (0)| 00:00:08 |       |       |
+|* 14 |             TABLE ACCESS FULL                 | DEBITCONTRACT                 |     1 |    66 |    36   (0)| 00:00:01 |       |       |
+|  15 |             PARTITION RANGE ALL               |                               | 10240 |  1480K|   559   (0)| 00:00:07 |1048575|     1 |
+|  16 |              TABLE ACCESS BY LOCAL INDEX ROWID| DEBITBATCHREQUEST             | 10240 |  1480K|   559   (0)| 00:00:07 |1048575|     1 |
+|* 17 |               INDEX RANGE SCAN                | IDX_DEBITBATCHREQUEST_MCODE   | 10272 |       |    46   (0)| 00:00:01 |1048575|     1 |
+|  18 |            PARTITION RANGE ITERATOR           |                               |     1 |   338 |     1   (0)| 00:00:01 |   KEY |   KEY |
+|* 19 |             TABLE ACCESS BY LOCAL INDEX ROWID | DEBITBATCHREQUESTITEM         |     1 |   338 |     1   (0)| 00:00:01 |   KEY |   KEY |
+|* 20 |              INDEX RANGE SCAN                 | IDX_DEBITBATCHREQUEST_DBRID_N |    41 |       |     1   (0)| 00:00:01 |   KEY |   KEY |
+|  21 |           TABLE ACCESS BY GLOBAL INDEX ROWID  | DIRECTDEBITORDER              |     1 |   359 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 22 |            INDEX UNIQUE SCAN                  | PK_DIRECTDEBITORDER_N_ID      |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  23 |          TABLE ACCESS BY INDEX ROWID          | DEBITMERCHANTCONTRACT         |     1 |    58 |     1   (0)| 00:00:01 |       |       |
+|* 24 |           INDEX UNIQUE SCAN                   | SYS_C0052200                  |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  25 |         TABLE ACCESS BY GLOBAL INDEX ROWID    | DEBITREQUEST                  |     1 |    22 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 26 |          INDEX UNIQUE SCAN                    | IDX_DEBITREQUEST_N_SEQNO      |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  27 |        TABLE ACCESS BY GLOBAL INDEX ROWID     | DEBITWORKORDER                |     1 |    15 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 28 |         INDEX UNIQUE SCAN                     | IDX_DEBITWO_DEBITREQUESTID    |     1 |       |     1   (0)| 00:00:01 |       |       |
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(ROWNUM=1)
+   2 - filter("STATUS"=1 AND TO_NUMBER("MEMBERCODE")=:B1)
+   3 - filter(ROWNUM<=:4)
+   5 - filter(ROWNUM<=:4)
+   6 - filter(ROWNUM<=300)
+   7 - filter(:2>=:1)
+  14 - filter("DEBITCONTRACT"."MEMBERNAME" LIKE :3 AND "STATUS"=1)
+  17 - access("B"."MEMBERCODE"=TO_NUMBER("DEBITCONTRACT"."MEMBERCODE"))
+  19 - filter("I"."CREATETIME">=:1 AND "I"."CREATETIME"<=:2)
+  20 - access("I"."DEBITBATCHREQUESTID"="B"."ID")
+  22 - access("O"."ID"(+)="I"."DEBITORDERID")
+  24 - access("O"."MERCHANTCONTRACTID"="D"."ID"(+))
+  26 - access("R"."REQUESTID"(+)=TO_CHAR("O"."ID") AND "R"."APPLICATIONID"(+)=TO_NUMBER("O"."APPLICATIONID"))
+  28 - access("R"."ID"="W"."DEBITREQUESTID"(+))
+
+3- Using New Indices
+--------------------
+Plan hash value: 2623832092
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                    | Name                       | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+-------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                             |                            |     1 |  3476 |    17   (0)| 00:00:01 |       |       |
+|*  1 |  COUNT STOPKEY                               |                            |       |       |            |          |       |       |
+|   2 |   TABLE ACCESS BY INDEX ROWID                | DEBITCONTRACT              |     1 |    46 |     1   (0)| 00:00:01 |       |       |
+|*  3 |    INDEX RANGE SCAN                          | IDX$$_6CAB80001            |     1 |       |     1   (0)| 00:00:01 |       |       |
+|*  4 |  COUNT STOPKEY                               |                            |       |       |            |          |       |       |
+|   5 |   VIEW                                       |                            |     1 |  3476 |    17   (0)| 00:00:01 |       |       |
+|*  6 |    COUNT STOPKEY                             |                            |       |       |            |          |       |       |
+|*  7 |     FILTER                                   |                            |       |       |            |          |       |       |
+|   8 |      NESTED LOOPS OUTER                      |                            |     1 |  1006 |    17   (0)| 00:00:01 |       |       |
+|   9 |       NESTED LOOPS OUTER                     |                            |     1 |   991 |    16   (0)| 00:00:01 |       |       |
+|  10 |        NESTED LOOPS OUTER                    |                            |     1 |   969 |    15   (0)| 00:00:01 |       |       |
+|  11 |         NESTED LOOPS OUTER                   |                            |     1 |   911 |    14   (0)| 00:00:01 |       |       |
+|  12 |          NESTED LOOPS                        |                            |     1 |   552 |    13   (0)| 00:00:01 |       |       |
+|  13 |           NESTED LOOPS                       |                            |     1 |   486 |    12   (0)| 00:00:01 |       |       |
+|  14 |            TABLE ACCESS BY GLOBAL INDEX ROWID| DEBITBATCHREQUESTITEM      |  2606 |   860K|    11   (0)| 00:00:01 | ROWID | ROWID |
+|* 15 |             INDEX RANGE SCAN DESCENDING      | IDX$$_6CAB80002            |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  16 |            TABLE ACCESS BY GLOBAL INDEX ROWID| DEBITBATCHREQUEST          |     1 |   148 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 17 |             INDEX UNIQUE SCAN                | PK_DEBITBATCHREQUEST_ID    |     1 |       |     1   (0)| 00:00:01 |       |       |
+|* 18 |           TABLE ACCESS BY INDEX ROWID        | DEBITCONTRACT              |     1 |    66 |     1   (0)| 00:00:01 |       |       |
+|* 19 |            INDEX RANGE SCAN                  | IDX$$_6CAB80003            |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  20 |          TABLE ACCESS BY GLOBAL INDEX ROWID  | DIRECTDEBITORDER           |     1 |   359 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 21 |           INDEX UNIQUE SCAN                  | PK_DIRECTDEBITORDER_N_ID   |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  22 |         TABLE ACCESS BY INDEX ROWID          | DEBITMERCHANTCONTRACT      |     1 |    58 |     1   (0)| 00:00:01 |       |       |
+|* 23 |          INDEX UNIQUE SCAN                   | SYS_C0052200               |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  24 |        TABLE ACCESS BY GLOBAL INDEX ROWID    | DEBITREQUEST               |     1 |    22 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 25 |         INDEX UNIQUE SCAN                    | IDX_DEBITREQUEST_N_SEQNO   |     1 |       |     1   (0)| 00:00:01 |       |       |
+|  26 |       TABLE ACCESS BY GLOBAL INDEX ROWID     | DEBITWORKORDER             |     1 |    15 |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 27 |        INDEX UNIQUE SCAN                     | IDX_DEBITWO_DEBITREQUESTID |     1 |       |     1   (0)| 00:00:01 |       |       |
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter(ROWNUM=1)
+   3 - access("DEBITCONTRACT"."qsmmix_VCol_5001"=:B1 AND "STATUS"=1)
+   4 - filter(ROWNUM<=:4)
+   6 - filter(ROWNUM<=300)
+   7 - filter(:2>=:1)
+  15 - access("I"."CREATETIME">=:1 AND "I"."CREATETIME"<=:2)
+  17 - access("I"."DEBITBATCHREQUESTID"="B"."ID")
+  18 - filter("DEBITCONTRACT"."MEMBERNAME" LIKE :3 AND "STATUS"=1)
+  19 - access("B"."MEMBERCODE"="DEBITCONTRACT"."qsmmix_VCol_5001")
+  21 - access("O"."ID"(+)="I"."DEBITORDERID")
+  23 - access("O"."MERCHANTCONTRACTID"="D"."ID"(+))
+  25 - access("R"."REQUESTID"(+)=TO_CHAR("O"."ID") AND "R"."APPLICATIONID"(+)=TO_NUMBER("O"."APPLICATIONID"))
+  27 - access("R"."ID"="W"."DEBITREQUESTID"(+))
+
+-------------------------------------------------------------------------------
+
+
