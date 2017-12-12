@@ -13,3 +13,4 @@ http://www.dbsnake.net/oracle-hash-join.html
 
 develop-001
 beta-001
+beta-002
