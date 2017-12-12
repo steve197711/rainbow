@@ -1,0 +1,439 @@
+
+GENERAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+Tuning Task Name   : TASK_211510
+Tuning Task Owner  : DBASTEVE
+Workload Type      : Single SQL Statement
+Scope              : COMPREHENSIVE
+Time Limit(seconds): 1800
+Completion Status  : COMPLETED
+Started at         : 09/27/2017 01:00:02
+Completed at       : 09/27/2017 01:08:25
+
+-------------------------------------------------------------------------------
+Schema Name: WISE
+SQL ID     : fbac7jvbfqc09
+SQL Text   : SELECT * FROM (     SELECT A.*, ROWNUM RN FROM (      select
+                 c.acct_seq as billOrderId,           to_date(t.TXN_TIME) as
+             txnDate,          CASE WHEN wo.flag = '04' then null
+               WHEN p.due_date <= w.work_date THEN w.work_date
+             ELSE p.due_date END as sendDate,          CASE WHEN wo.flag =
+             '04' then 0.00              WHEN p.grace_date < w.work_date
+                     THEN NVL(U.PRIN,0.00) + NVL(U.RECI_ACCR_INTE,0.00)+
+             NVL(U.RECI_DEBT_INTE,0.00) + NVL(U.OVERDUE_RECI_ACCR_INTE,0.00)
+             + NVL(U.OVERDUE_RECI_INTE,0.00)               ELSE
+             NVL(p.regular_amount,0.00) END AS repayAmt,          CASE WHEN
+             wo.flag = '04' then 0.00              WHEN p.grace_date <
+             w.work_date THEN NVL(U.PRIN,0.00)               ELSE
+             p.regular_bal END AS repayPrin,          CASE WHEN wo.flag =
+             '04' then 0.00              WHEN p.grace_date < w.work_date
+                     THEN NVL(U.RECI_ACCR_INTE,0.00)+
+             NVL(U.RECI_DEBT_INTE,0.00) + NVL(U.OVERDUE_RECI_ACCR_INTE,0.00)
+             + NVL(U.OVERDUE_RECI_INTE,0.00)               ELSE p.PERIOD_INTE
+             END AS repayInte,         wo.ID AS repayId,          t.ID AS
+             txnId ,         wo.stage AS period,          wo.TOTAL_AMT AS
+             avalAmt        from wise.fcs_repay_detail rd         inner join
+             wise.fcs_repay r on rd.repay_id = r.id        inner join
+             wise.fcs_repay_writeoff wo on rd.id = wo.REPAY_DETAIL_ID
+              inner join wise.fcs_txn t on wo.txn_id = t.id        left join
+             (            select to_date(value, 'yyyy-mm-dd') as work_date
+             from wise.CONF_PARAM where name = 'WORK_DATE'        ) w on 1=1
+                   left join wise.FILE_REPAY_AHEAD fra ON wo.txn_id =
+             fra.txn_id        left join wise.T_CREDIT_BANK_RECON_LOAN c on
+             t.id = c.loan_id         left join
+             wise.T_CREDIT_BANK_NJB_REPAY_PLAN p on p.acct_seq = c.acct_seq
+             AND p.current_period = wo.STAGE        left join
+             wise.T_REPAY_UN_SETTLE u on u.bill_order_id = c.acct_seq AND
+             u.curr_period = wo.STAGE         where r.fund_src
+             in('11','1101')        and rd.status = 1 and rd.is_finished = 0
+             and fra.id is null        and r.repay_time >= w.work_date - 1
+                  and r.repay_time < w.work_date        order by wo.id     )
+             A WHERE ROWNUM <= :1      ) WHERE RN >= :2
+Bind Variables :
+ 1 -  (NUMBER):44999
+ 2 -  (NUMBER):40000
+
+-------------------------------------------------------------------------------
+FINDINGS SECTION (2 findings)
+-------------------------------------------------------------------------------
+
+1- SQL Profile Finding (see explain plans section below)
+--------------------------------------------------------
+  为此语句找到了性能更好的执行计划 2。选择以下 SQL 概要文件之一进行实施。
+
+  Recommendation (estimated benefit: 99.99%)
+  ------------------------------------------
+  - 考虑接受推荐的 SQL 概要文件。
+    execute dbms_sqltune.accept_sql_profile(task_name => 'TASK_211510',
+            task_owner => 'DBASTEVE', replace => TRUE);
+
+  Recommendation (estimated benefit: 99.99%)
+  ------------------------------------------
+  - 考虑接受建议的 SQL 概要文件, 以便对此语句使用并行执行。
+    execute dbms_sqltune.accept_sql_profile(task_name => 'TASK_211510',
+            task_owner => 'DBASTEVE', replace => TRUE, profile_type =>
+            DBMS_SQLTUNE.PX_PROFILE);
+
+  与 DOP 128 并行执行此查询会使 SQL 概要文件计划上的响应时间缩短 96.74%。但是, 启用并行执行时要付出一些代价。它将增加语句的资源消耗
+  (预计为 317.85%), 这会导致系统吞吐量降低。此外, 由于在非常短的持续时间内消耗了这些资源, 因此如果没有足够可用的硬件容量,
+  并发语句的响应时间将受到负面影响。
+
+  The following data shows some sampled statistics for this SQL from the past
+  week and projected weekly values when parallel execution is enabled.
+
+                                 Past week sampled statistics for this SQL
+                                 -----------------------------------------
+  Number of executions                                                   0
+  Percent of total activity                                              0
+  Percent of samples with #Active Sessions > 2*CPU                       0
+  Weekly DB time (in sec)                                                0
+
+                              Projected statistics with Parallel Execution
+                              --------------------------------------------
+  Weekly DB time (in sec)                                                0
+
+2- Index Finding (see explain plans section below)
+--------------------------------------------------
+  通过创建一个或多个索引可以改进此语句的执行计划。
+
+  Recommendation (estimated benefit: 96.73%)
+  ------------------------------------------
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index WISE.IDX$$_33A360001 on WISE.FCS_REPAY("FUND_SRC","ID","REPAY_
+    TIME");
+
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index WISE.IDX$$_33A360002 on WISE.T_REPAY_UN_SETTLE("CURR_PERIOD","
+    BILL_ORDER_ID");
+
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index WISE.IDX$$_33A360003 on WISE.T_CREDIT_BANK_NJB_REPAY_PLAN("CUR
+    RENT_PERIOD","ACCT_SEQ");
+
+  Rationale
+  ---------
+    创建推荐的索引可以显著地改进此语句的执行计划。但是, 使用典型的 SQL 工作量运行 "访问指导"
+    可能比单个语句更可取。通过这种方法可以获得全面的索引建议案, 包括计算索引维护的开销和附加的空间消耗。
+
+-------------------------------------------------------------------------------
+ADDITIONAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+- 优化程序不能合并位于执行计划的行 ID 3 处的视图。. 优化程序不能合并包含 "ORDER BY" 子句的视图, 除非此语句为 "DELETE" 或
+  "UPDATE", 并且父查询为此语句中的顶级查询。.
+- 优化程序不能合并位于执行计划的行 ID 1 处的视图。. 优化程序不能合并包含 "ROWNUM" 伪列的视图。.
+
+-------------------------------------------------------------------------------
+EXPLAIN PLANS SECTION
+-------------------------------------------------------------------------------
+
+1- Original With Adjusted Cost
+------------------------------
+Plan hash value: 666359438
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                         | Name                           | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     | Pstart| Pstop |
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                                  |                                | 44999 |  5976K|       |   304T(100)|999:59:59 |       |       |
+|*  1 |  VIEW                                             |                                | 44999 |  5976K|       |   304T(100)|999:59:59 |       |       |
+|*  2 |   COUNT STOPKEY                                   |                                |       |       |       |            |          |       |       |
+|   3 |    VIEW                                           |                                |  4034P|    15E|       |   304T(100)|999:59:59 |       |       |
+|*  4 |     SORT ORDER BY STOPKEY                         |                                |  4034P|    15E|    15E|   304T(100)|999:59:59 |       |       |
+|   5 |      NESTED LOOPS OUTER                           |                                |  4034P|    15E|       |   285G  (1)|999:59:59 |       |       |
+|   6 |       NESTED LOOPS OUTER                          |                                |  1900G|   245T|       |  1010K  (1)| 03:22:11 |       |       |
+|   7 |        VIEW                                       |                                | 95692 |  8690K|       |   967K  (1)| 03:13:34 |       |       |
+|*  8 |         HASH JOIN OUTER                           |                                | 95692 |    20M|    18M|   967K  (1)| 03:13:34 |       |       |
+|   9 |          NESTED LOOPS                             |                                | 95692 |    17M|       |   921K  (1)| 03:04:13 |       |       |
+|  10 |           NESTED LOOPS                            |                                | 95692 |    17M|       |   921K  (1)| 03:04:13 |       |       |
+|* 11 |            FILTER                                 |                                |       |       |       |            |          |       |       |
+|* 12 |             HASH JOIN OUTER                       |                                | 95692 |    16M|    15M|   906K  (1)| 03:01:21 |       |       |
+|  13 |              NESTED LOOPS                         |                                | 95692 |    14M|       |   905K  (1)| 03:01:05 |       |       |
+|  14 |               NESTED LOOPS                        |                                | 95692 |    14M|       |   905K  (1)| 03:01:05 |       |       |
+|  15 |                NESTED LOOPS                       |                                | 63532 |  6328K|       |   895K  (1)| 02:59:10 |       |       |
+|  16 |                 NESTED LOOPS                      |                                |   276K|    22M|       |   190K  (1)| 00:38:04 |       |       |
+|  17 |                  TABLE ACCESS BY INDEX ROWID      | CONF_PARAM                     |     1 |    42 |       |     1   (0)| 00:00:01 |       |       |
+|* 18 |                   INDEX UNIQUE SCAN               | PK_CONF_PARAM                  |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  19 |                  PARTITION RANGE ITERATOR         |                                |   276K|    11M|       |   190K  (1)| 00:38:04 |   KEY |   KEY |
+|* 20 |                   TABLE ACCESS FULL               | FCS_REPAY                      |   276K|    11M|       |   190K  (1)| 00:38:04 |   KEY |   KEY |
+|  21 |                 PARTITION RANGE ALL               |                                |     1 |    18 |       |     3   (0)| 00:00:01 |     1 |1048575|
+|* 22 |                  TABLE ACCESS BY LOCAL INDEX ROWID| FCS_REPAY_DETAIL               |     1 |    18 |       |     3   (0)| 00:00:01 |     1 |1048575|
+|* 23 |                   INDEX RANGE SCAN                | IDX_FCS_REPD_MID               |     2 |       |       |     2   (0)| 00:00:01 |     1 |1048575|
+|* 24 |                INDEX RANGE SCAN                   | IDX_FCS_REPAY_WRITEOFF_REPAYID |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  25 |               TABLE ACCESS BY GLOBAL INDEX ROWID  | FCS_REPAY_WRITEOFF             |     2 |   116 |       |     1   (0)| 00:00:01 | ROWID | ROWID |
+|  26 |              TABLE ACCESS FULL                    | FILE_REPAY_AHEAD               | 45524 |   844K|       |   471   (1)| 00:00:06 |       |       |
+|* 27 |            INDEX UNIQUE SCAN                      | UK_FCS_TXN                     |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  28 |           TABLE ACCESS BY GLOBAL INDEX ROWID      | FCS_TXN                        |     1 |    15 |       |     1   (0)| 00:00:01 | ROWID | ROWID |
+|  29 |          TABLE ACCESS FULL                        | T_CREDIT_BANK_RECON_LOAN       |  4767K|   127M|       | 36768   (1)| 00:07:22 |       |       |
+|* 30 |        TABLE ACCESS BY INDEX ROWID                | T_CREDIT_BANK_NJB_REPAY_PLAN   |    19M|   928M|       |     1   (0)| 00:00:01 |       |       |
+|* 31 |         INDEX RANGE SCAN                          | IDX_CREDIT_REPAY_ACCT_SEQ_SID  |    10 |       |       |     1   (0)| 00:00:01 |       |       |
+|* 32 |       TABLE ACCESS BY INDEX ROWID                 | T_REPAY_UN_SETTLE              |  2122K|   196M|       |     1   (0)| 00:00:01 |       |       |
+|* 33 |        INDEX RANGE SCAN                           | INDEX_UN_SETTLE_ORDERID        |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter("RN">=:2)
+   2 - filter(ROWNUM<=:1)
+   4 - filter(ROWNUM<=:1)
+   8 - access("T"."ID"=TO_NUMBER("C"."LOAN_ID"(+)))
+  11 - filter("FRA"."ID" IS NULL)
+  12 - access("WO"."TXN_ID"="FRA"."TXN_ID"(+))
+  18 - access("NAME"='WORK_DATE')
+  20 - filter(("R"."FUND_SRC"='11' OR "R"."FUND_SRC"='1101') AND "R"."REPAY_TIME">=TO_DATE("VALUE",'yyyy-mm-dd')-1 AND
+              "R"."REPAY_TIME"<TO_DATE("VALUE",'yyyy-mm-dd'))
+  22 - filter(TO_NUMBER("RD"."STATUS")=1 AND "RD"."IS_FINISHED"=0)
+  23 - access("RD"."REPAY_ID"="R"."ID")
+  24 - access("RD"."ID"="WO"."REPAY_DETAIL_ID")
+  27 - access("WO"."TXN_ID"="T"."ID")
+  30 - filter("P"."CURRENT_PERIOD"(+)="WO"."STAGE")
+  31 - access("P"."ACCT_SEQ"(+)="C"."ACCT_SEQ")
+  32 - filter("U"."CURR_PERIOD"(+)="from$_subquery$_016"."STAGE")
+  33 - access("U"."BILL_ORDER_ID"(+)="from$_subquery$_016"."ACCT_SEQ")
+
+2- Using SQL Profile
+--------------------
+Plan hash value: 382537897
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                        | Name                           | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     | Pstart| Pstop |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                                 |                                | 44999 |  5976K|       |  7973M  (3)|999:59:59 |       |       |
+|*  1 |  VIEW                                            |                                | 44999 |  5976K|       |  7973M  (3)|999:59:59 |       |       |
+|*  2 |   COUNT STOPKEY                                  |                                |       |       |       |            |          |       |       |
+|   3 |    VIEW                                          |                                |  1904G|   213T|       |  7973M  (3)|999:59:59 |       |       |
+|*  4 |     SORT ORDER BY STOPKEY                        |                                |  1904G|   414T|   457T|  7973M  (3)|999:59:59 |       |       |
+|   5 |      MERGE JOIN OUTER                            |                                |  1904G|   414T|       |   515M (19)|999:59:59 |       |       |
+|   6 |       SORT JOIN                                  |                                |  1900G|   245T|   555T|   515M (19)|999:59:59 |       |       |
+|   7 |        NESTED LOOPS OUTER                        |                                |  1900G|   245T|       |   428K  (1)| 01:25:39 |       |       |
+|   8 |         VIEW                                     |                                | 95692 |  8690K|       |   385K  (1)| 01:17:02 |       |       |
+|*  9 |          HASH JOIN OUTER                         |                                | 95692 |    20M|    18M|   385K  (1)| 01:17:02 |       |       |
+|  10 |           NESTED LOOPS                           |                                | 95692 |    17M|       |   338K  (1)| 01:07:41 |       |       |
+|  11 |            NESTED LOOPS                          |                                | 95692 |    17M|       |   338K  (1)| 01:07:41 |       |       |
+|* 12 |             FILTER                               |                                |       |       |       |            |          |       |       |
+|* 13 |              HASH JOIN RIGHT OUTER               |                                | 95692 |    16M|       |   324K  (1)| 01:04:49 |       |       |
+|  14 |               TABLE ACCESS FULL                  | FILE_REPAY_AHEAD               | 45524 |   844K|       |   471   (1)| 00:00:06 |       |       |
+|  15 |               NESTED LOOPS                       |                                | 95692 |    14M|       |   323K  (1)| 01:04:43 |       |       |
+|  16 |                NESTED LOOPS                      |                                | 95692 |    14M|       |   323K  (1)| 01:04:43 |       |       |
+|* 17 |                 HASH JOIN                        |                                | 63532 |  6328K|    25M|   314K  (1)| 01:02:49 |       |       |
+|  18 |                  NESTED LOOPS                    |                                |   276K|    22M|       |   190K  (1)| 00:38:04 |       |       |
+|  19 |                   TABLE ACCESS BY INDEX ROWID    | CONF_PARAM                     |     1 |    42 |       |     1   (0)| 00:00:01 |       |       |
+|* 20 |                    INDEX UNIQUE SCAN             | PK_CONF_PARAM                  |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  21 |                   PARTITION RANGE ITERATOR       |                                |   276K|    11M|       |   190K  (1)| 00:38:04 |   KEY |   KEY |
+|* 22 |                    TABLE ACCESS FULL             | FCS_REPAY                      |   276K|    11M|       |   190K  (1)| 00:38:04 |   KEY |   KEY |
+|  23 |                  PARTITION RANGE ALL             |                                |  5739K|    98M|       |   114K  (1)| 00:22:53 |     1 |1048575|
+|* 24 |                   TABLE ACCESS FULL              | FCS_REPAY_DETAIL               |  5739K|    98M|       |   114K  (1)| 00:22:53 |     1 |1048575|
+|* 25 |                 INDEX RANGE SCAN                 | IDX_FCS_REPAY_WRITEOFF_REPAYID |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  26 |                TABLE ACCESS BY GLOBAL INDEX ROWID| FCS_REPAY_WRITEOFF             |     2 |   116 |       |     1   (0)| 00:00:01 | ROWID | ROWID |
+|* 27 |             INDEX UNIQUE SCAN                    | UK_FCS_TXN                     |     1 |       |       |     1   (0)| 00:00:01 |       |       |
+|  28 |            TABLE ACCESS BY GLOBAL INDEX ROWID    | FCS_TXN                        |     1 |    15 |       |     1   (0)| 00:00:01 | ROWID | ROWID |
+|  29 |           TABLE ACCESS FULL                      | T_CREDIT_BANK_RECON_LOAN       |  4767K|   127M|       | 36768   (1)| 00:07:22 |       |       |
+|* 30 |         TABLE ACCESS BY INDEX ROWID              | T_CREDIT_BANK_NJB_REPAY_PLAN   |    19M|   928M|       |     1   (0)| 00:00:01 |       |       |
+|* 31 |          INDEX RANGE SCAN                        | IDX_CREDIT_REPAY_ACCT_SEQ_SID  |    10 |       |       |     1   (0)| 00:00:01 |       |       |
+|* 32 |       SORT JOIN                                  |                                |  2123K|   196M|   473M| 57299   (1)| 00:11:28 |       |       |
+|  33 |        TABLE ACCESS FULL                         | T_REPAY_UN_SETTLE              |  2123K|   196M|       | 10338   (1)| 00:02:05 |       |       |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter("RN">=:2)
+   2 - filter(ROWNUM<=:1)
+   4 - filter(ROWNUM<=:1)
+   9 - access("T"."ID"=TO_NUMBER("C"."LOAN_ID"(+)))
+  12 - filter("FRA"."ID" IS NULL)
+  13 - access("WO"."TXN_ID"="FRA"."TXN_ID"(+))
+  17 - access("RD"."REPAY_ID"="R"."ID")
+  20 - access("NAME"='WORK_DATE')
+  22 - filter(("R"."FUND_SRC"='11' OR "R"."FUND_SRC"='1101') AND "R"."REPAY_TIME">=TO_DATE("VALUE",'yyyy-mm-dd')-1 AND
+              "R"."REPAY_TIME"<TO_DATE("VALUE",'yyyy-mm-dd'))
+  24 - filter(TO_NUMBER("RD"."STATUS")=1 AND "RD"."IS_FINISHED"=0)
+  25 - access("RD"."ID"="WO"."REPAY_DETAIL_ID")
+  27 - access("WO"."TXN_ID"="T"."ID")
+  30 - filter("P"."CURRENT_PERIOD"(+)="WO"."STAGE")
+  31 - access("P"."ACCT_SEQ"(+)="C"."ACCT_SEQ")
+  32 - access("U"."CURR_PERIOD"(+)="from$_subquery$_016"."STAGE" AND "U"."BILL_ORDER_ID"(+)="from$_subquery$_016"."ACCT_SEQ")
+       filter("U"."BILL_ORDER_ID"(+)="from$_subquery$_016"."ACCT_SEQ" AND "U"."CURR_PERIOD"(+)="from$_subquery$_016"."STAGE")
+
+3- Using New Indices
+--------------------
+Plan hash value: 4094323384
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                                  | Name                           | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     | Pstart| Pstop |    TQ  |IN-OUT| PQ Distrib |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                                           |                                | 44999 |  5976K|       |   260M  (1)|867:35:54 |       |       |        |      |            |
+|*  1 |  VIEW                                                      |                                | 44999 |  5976K|       |   260M  (1)|867:35:54 |       |       |        |      |            |
+|*  2 |   COUNT STOPKEY                                            |                                |       |       |       |            |          |       |       |        |      |            |
+|   3 |    PX COORDINATOR                                          |                                |       |       |       |            |          |       |       |        |      |            |
+|   4 |     PX SEND QC (ORDER)                                     | :TQ10008                       |   430G|    48T|       |   260M  (1)|867:35:54 |       |       |  Q1,08 | P->S | QC (ORDER) |
+|   5 |      VIEW                                                  |                                |   430G|    48T|       |   260M  (1)|867:35:54 |       |       |  Q1,08 | PCWP |            |
+|*  6 |       SORT ORDER BY STOPKEY                                |                                |   430G|    93T|   103T|   260M  (1)|867:35:54 |       |       |  Q1,08 | PCWP |            |
+|   7 |        PX RECEIVE                                          |                                | 44999 |  5405K|       |            |          |       |       |  Q1,08 | PCWP |            |
+|   8 |         PX SEND RANGE                                      | :TQ10007                       | 44999 |  5405K|       |            |          |       |       |  Q1,07 | P->P | RANGE      |
+|*  9 |          SORT ORDER BY STOPKEY                             |                                | 44999 |  5405K|       |            |          |       |       |  Q1,07 | PCWP |            |
+|  10 |           NESTED LOOPS OUTER                               |                                |   430G|    93T|       |  1433   (1)| 00:00:18 |       |       |  Q1,07 | PCWP |            |
+|  11 |            NESTED LOOPS OUTER                              |                                | 21661 |  4019K|       |  1405   (1)| 00:00:17 |       |       |  Q1,07 | PCWP |            |
+|  12 |             VIEW                                           |                                | 21611 |  1962K|       |  1377   (1)| 00:00:17 |       |       |  Q1,07 | PCWP |            |
+|* 13 |              HASH JOIN OUTER                               |                                | 21611 |  4685K|       |  1377   (1)| 00:00:17 |       |       |  Q1,07 | PCWP |            |
+|  14 |               PX RECEIVE                                   |                                | 21611 |  4094K|       |  1058   (1)| 00:00:13 |       |       |  Q1,07 | PCWP |            |
+|  15 |                PX SEND HASH                                | :TQ10005                       | 21611 |  4094K|       |  1058   (1)| 00:00:13 |       |       |  Q1,05 | P->P | HASH       |
+|  16 |                 BUFFER SORT                                |                                | 44999 |  5976K|       |            |          |       |       |  Q1,05 | PCWP |            |
+|  17 |                  NESTED LOOPS                              |                                | 21611 |  4094K|       |  1058   (1)| 00:00:13 |       |       |  Q1,05 | PCWP |            |
+|  18 |                   NESTED LOOPS                             |                                | 21611 |  4094K|       |  1058   (1)| 00:00:13 |       |       |  Q1,05 | PCWP |            |
+|* 19 |                    FILTER                                  |                                |       |       |       |            |          |       |       |  Q1,05 | PCWC |            |
+|* 20 |                     HASH JOIN RIGHT OUTER                  |                                | 21611 |  3777K|       |  1029   (1)| 00:00:13 |       |       |  Q1,05 | PCWP |            |
+|  21 |                      PX RECEIVE                            |                                | 45524 |   844K|       |     4   (0)| 00:00:01 |       |       |  Q1,05 | PCWP |            |
+|  22 |                       PX SEND HASH                         | :TQ10003                       | 45524 |   844K|       |     4   (0)| 00:00:01 |       |       |  Q1,03 | P->P | HASH       |
+|  23 |                        PX BLOCK ITERATOR                   |                                | 45524 |   844K|       |     4   (0)| 00:00:01 |       |       |  Q1,03 | PCWC |            |
+|  24 |                         TABLE ACCESS FULL                  | FILE_REPAY_AHEAD               | 45524 |   844K|       |     4   (0)| 00:00:01 |       |       |  Q1,03 | PCWP |            |
+|  25 |                      PX RECEIVE                            |                                | 21611 |  3376K|       |  1025   (1)| 00:00:13 |       |       |  Q1,05 | PCWP |            |
+|  26 |                       PX SEND HASH                         | :TQ10004                       | 21611 |  3376K|       |  1025   (1)| 00:00:13 |       |       |  Q1,04 | P->P | HASH       |
+|  27 |                        NESTED LOOPS                        |                                | 21611 |  3376K|       |  1025   (1)| 00:00:13 |       |       |  Q1,04 | PCWP |            |
+|  28 |                         NESTED LOOPS                       |                                | 21611 |  3376K|       |  1025   (1)| 00:00:13 |       |       |  Q1,04 | PCWP |            |
+|* 29 |                          HASH JOIN                         |                                | 14348 |  1429K|       |  1007   (1)| 00:00:13 |       |       |  Q1,04 | PCWP |            |
+|  30 |                           PX RECEIVE                       |                                |  5739K|   328M|       |   993   (1)| 00:00:12 |       |       |  Q1,04 | PCWP |            |
+|  31 |                            PX SEND HASH                    | :TQ10002                       |  5739K|   328M|       |   993   (1)| 00:00:12 |       |       |  Q1,02 | P->P | HASH       |
+|  32 |                             NESTED LOOPS                   |                                |  5739K|   328M|       |   993   (1)| 00:00:12 |       |       |  Q1,02 | PCWP |            |
+|  33 |                              BUFFER SORT                   |                                |       |       |       |            |          |       |       |  Q1,02 | PCWC |            |
+|  34 |                               PX RECEIVE                   |                                |       |       |       |            |          |       |       |  Q1,02 | PCWP |            |
+|  35 |                                PX SEND BROADCAST           | :TQ10000                       |       |       |       |            |          |       |       |        | S->P | BROADCAST  |
+|  36 |                                 TABLE ACCESS BY INDEX ROWID| CONF_PARAM                     |     1 |    42 |       |     1   (0)| 00:00:01 |       |       |        |      |            |
+|* 37 |                                  INDEX UNIQUE SCAN         | PK_CONF_PARAM                  |     1 |       |       |     1   (0)| 00:00:01 |       |       |        |      |            |
+|  38 |                              PX BLOCK ITERATOR             |                                |  5739K|    98M|       |   992   (1)| 00:00:12 |     1 |1048575|  Q1,02 | PCWC |            |
+|* 39 |                               TABLE ACCESS FULL            | FCS_REPAY_DETAIL               |  5739K|    98M|       |   992   (1)| 00:00:12 |     1 |1048575|  Q1,02 | PCWP |            |
+|  40 |                           BUFFER SORT                      |                                |       |       |       |            |          |       |       |  Q1,04 | PCWC |            |
+|  41 |                            PX RECEIVE                      |                                |    24M|  1000M|       |    13   (0)| 00:00:01 |       |       |  Q1,04 | PCWP |            |
+|  42 |                             PX SEND HASH                   | :TQ10001                       |    24M|  1000M|       |    13   (0)| 00:00:01 |       |       |        | S->P | HASH       |
+|  43 |                              INLIST ITERATOR               |                                |       |       |       |            |          |       |       |        |      |            |
+|* 44 |                               INDEX RANGE SCAN             | IDX$$_33A360001                |    24M|  1000M|       |    13   (0)| 00:00:01 |       |       |        |      |            |
+|* 45 |                          INDEX RANGE SCAN                  | IDX_FCS_REPAY_WRITEOFF_REPAYID |     1 |       |       |     0   (0)| 00:00:01 |       |       |  Q1,04 | PCWP |            |
+|  46 |                         TABLE ACCESS BY GLOBAL INDEX ROWID | FCS_REPAY_WRITEOFF             |     2 |   116 |       |     0   (0)| 00:00:01 | ROWID | ROWID |  Q1,04 | PCWP |            |
+|* 47 |                    INDEX UNIQUE SCAN                       | UK_FCS_TXN                     |     1 |       |       |     0   (0)| 00:00:01 |       |       |  Q1,05 | PCWP |            |
+|  48 |                   TABLE ACCESS BY GLOBAL INDEX ROWID       | FCS_TXN                        |     1 |    15 |       |     0   (0)| 00:00:01 | ROWID | ROWID |  Q1,05 | PCWP |            |
+|  49 |               PX RECEIVE                                   |                                |  4767K|   127M|       |   319   (0)| 00:00:04 |       |       |  Q1,07 | PCWP |            |
+|  50 |                PX SEND HASH                                | :TQ10006                       |  4767K|   127M|       |   319   (0)| 00:00:04 |       |       |  Q1,06 | P->P | HASH       |
+|  51 |                 PX BLOCK ITERATOR                          |                                |  4767K|   127M|       |   319   (0)| 00:00:04 |       |       |  Q1,06 | PCWC |            |
+|  52 |                  TABLE ACCESS FULL                         | T_CREDIT_BANK_RECON_LOAN       |  4767K|   127M|       |   319   (0)| 00:00:04 |       |       |  Q1,06 | PCWP |            |
+|  53 |             TABLE ACCESS BY INDEX ROWID                    | T_REPAY_UN_SETTLE              |     1 |    97 |       |     1   (0)| 00:00:01 |       |       |  Q1,07 | PCWP |            |
+|* 54 |              INDEX RANGE SCAN                              | IDX$$_33A360002                |     1 |       |       |     1   (0)| 00:00:01 |       |       |  Q1,07 | PCWP |            |
+|  55 |            TABLE ACCESS BY INDEX ROWID                     | T_CREDIT_BANK_NJB_REPAY_PLAN   |    19M|   928M|       |     1   (0)| 00:00:01 |       |       |  Q1,07 | PCWP |            |
+|* 56 |             INDEX RANGE SCAN                               | IDX$$_33A360003                |     1 |       |       |     1   (0)| 00:00:01 |       |       |  Q1,07 | PCWP |            |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter("RN">=:2)
+   2 - filter(ROWNUM<=:1)
+   6 - filter(ROWNUM<=:1)
+   9 - filter(ROWNUM<=:1)
+  13 - access("T"."ID"=TO_NUMBER("C"."LOAN_ID"(+)))
+  19 - filter("FRA"."ID" IS NULL)
+  20 - access("WO"."TXN_ID"="FRA"."TXN_ID"(+))
+  29 - access("RD"."REPAY_ID"="R"."ID")
+       filter("R"."REPAY_TIME">=TO_DATE("VALUE",'yyyy-mm-dd')-1 AND "R"."REPAY_TIME"<TO_DATE("VALUE",'yyyy-mm-dd'))
+  37 - access("NAME"='WORK_DATE')
+  39 - filter(TO_NUMBER("RD"."STATUS")=1 AND "RD"."IS_FINISHED"=0)
+  44 - access("R"."FUND_SRC"='11' OR "R"."FUND_SRC"='1101')
+  45 - access("RD"."ID"="WO"."REPAY_DETAIL_ID")
+  47 - access("WO"."TXN_ID"="T"."ID")
+  54 - access("U"."CURR_PERIOD"(+)="from$_subquery$_016"."STAGE" AND "U"."BILL_ORDER_ID"(+)="from$_subquery$_016"."ACCT_SEQ")
+  56 - access("P"."CURRENT_PERIOD"(+)="WO"."STAGE" AND "P"."ACCT_SEQ"(+)="C"."ACCT_SEQ")
+
+4- Using Parallel Execution
+---------------------------
+Plan hash value: 3898384695
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                                    | Name                           | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     | Pstart| Pstop |    TQ  |IN-OUT| PQ Distrib |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                                             |                                | 44999 |  5976K|       |   260M  (1)|867:38:04 |       |       |        |      |            |
+|*  1 |  VIEW                                                        |                                | 44999 |  5976K|       |   260M  (1)|867:38:04 |       |       |        |      |            |
+|*  2 |   COUNT STOPKEY                                              |                                |       |       |       |            |          |       |       |        |      |            |
+|   3 |    PX COORDINATOR                                            |                                |       |       |       |            |          |       |       |        |      |            |
+|   4 |     PX SEND QC (ORDER)                                       | :TQ10010                       |   430G|    48T|       |   260M  (1)|867:38:04 |       |       |  Q1,10 | P->S | QC (ORDER) |
+|   5 |      VIEW                                                    |                                |   430G|    48T|       |   260M  (1)|867:38:04 |       |       |  Q1,10 | PCWP |            |
+|*  6 |       SORT ORDER BY STOPKEY                                  |                                |   430G|    93T|   103T|   260M  (1)|867:38:04 |       |       |  Q1,10 | PCWP |            |
+|   7 |        PX RECEIVE                                            |                                | 44999 |  5405K|       |            |          |       |       |  Q1,10 | PCWP |            |
+|   8 |         PX SEND RANGE                                        | :TQ10009                       | 44999 |  5405K|       |            |          |       |       |  Q1,09 | P->P | RANGE      |
+|*  9 |          SORT ORDER BY STOPKEY                               |                                | 44999 |  5405K|       |            |          |       |       |  Q1,09 | PCWP |            |
+|* 10 |           HASH JOIN RIGHT OUTER                              |                                |   430G|    93T|       | 12300  (75)| 00:02:28 |       |       |  Q1,09 | PCWP |            |
+|  11 |            PX RECEIVE                                        |                                |  2123K|   196M|       |    90   (2)| 00:00:02 |       |       |  Q1,09 | PCWP |            |
+|  12 |             PX SEND HASH                                     | :TQ10007                       |  2123K|   196M|       |    90   (2)| 00:00:02 |       |       |  Q1,07 | P->P | HASH       |
+|  13 |              PX BLOCK ITERATOR                               |                                |  2123K|   196M|       |    90   (2)| 00:00:02 |       |       |  Q1,07 | PCWC |            |
+|  14 |               TABLE ACCESS FULL                              | T_REPAY_UN_SETTLE              |  2123K|   196M|       |    90   (2)| 00:00:02 |       |       |  Q1,07 | PCWP |            |
+|  15 |            PX RECEIVE                                        |                                |   429G|    55T|       |  3098   (1)| 00:00:38 |       |       |  Q1,09 | PCWP |            |
+|  16 |             PX SEND HASH                                     | :TQ10008                       |   429G|    55T|       |  3098   (1)| 00:00:38 |       |       |  Q1,08 | P->P | HASH       |
+|  17 |              BUFFER SORT                                     |                                | 44999 |  5976K|       |            |          |       |       |  Q1,08 | PCWP |            |
+|  18 |               NESTED LOOPS OUTER                             |                                |   429G|    55T|       |  3098   (1)| 00:00:38 |       |       |  Q1,08 | PCWP |            |
+|  19 |                VIEW                                          |                                | 21611 |  1962K|       |  3014   (1)| 00:00:37 |       |       |  Q1,08 | PCWP |            |
+|* 20 |                 HASH JOIN OUTER                              |                                | 21611 |  4685K|       |  3014   (1)| 00:00:37 |       |       |  Q1,08 | PCWP |            |
+|  21 |                  PX RECEIVE                                  |                                | 21611 |  4094K|       |  2695   (1)| 00:00:33 |       |       |  Q1,08 | PCWP |            |
+|  22 |                   PX SEND HASH                               | :TQ10005                       | 21611 |  4094K|       |  2695   (1)| 00:00:33 |       |       |  Q1,05 | P->P | HASH       |
+|  23 |                    BUFFER SORT                               |                                | 44999 |  5976K|       |            |          |       |       |  Q1,05 | PCWP |            |
+|  24 |                     NESTED LOOPS                             |                                | 21611 |  4094K|       |  2695   (1)| 00:00:33 |       |       |  Q1,05 | PCWP |            |
+|  25 |                      NESTED LOOPS                            |                                | 21611 |  4094K|       |  2695   (1)| 00:00:33 |       |       |  Q1,05 | PCWP |            |
+|* 26 |                       FILTER                                 |                                |       |       |       |            |          |       |       |  Q1,05 | PCWC |            |
+|* 27 |                        HASH JOIN RIGHT OUTER                 |                                | 21611 |  3777K|       |  2666   (1)| 00:00:32 |       |       |  Q1,05 | PCWP |            |
+|  28 |                         PX RECEIVE                           |                                | 45524 |   844K|       |     4   (0)| 00:00:01 |       |       |  Q1,05 | PCWP |            |
+|  29 |                          PX SEND HASH                        | :TQ10003                       | 45524 |   844K|       |     4   (0)| 00:00:01 |       |       |  Q1,03 | P->P | HASH       |
+|  30 |                           PX BLOCK ITERATOR                  |                                | 45524 |   844K|       |     4   (0)| 00:00:01 |       |       |  Q1,03 | PCWC |            |
+|  31 |                            TABLE ACCESS FULL                 | FILE_REPAY_AHEAD               | 45524 |   844K|       |     4   (0)| 00:00:01 |       |       |  Q1,03 | PCWP |            |
+|  32 |                         PX RECEIVE                           |                                | 21611 |  3376K|       |  2662   (1)| 00:00:32 |       |       |  Q1,05 | PCWP |            |
+|  33 |                          PX SEND HASH                        | :TQ10004                       | 21611 |  3376K|       |  2662   (1)| 00:00:32 |       |       |  Q1,04 | P->P | HASH       |
+|  34 |                           BUFFER SORT                        |                                | 44999 |  5976K|       |            |          |       |       |  Q1,04 | PCWP |            |
+|  35 |                            NESTED LOOPS                      |                                | 21611 |  3376K|       |  2662   (1)| 00:00:32 |       |       |  Q1,04 | PCWP |            |
+|  36 |                             NESTED LOOPS                     |                                | 21611 |  3376K|       |  2662   (1)| 00:00:32 |       |       |  Q1,04 | PCWP |            |
+|* 37 |                              HASH JOIN                       |                                | 14348 |  1429K|       |  2644   (1)| 00:00:32 |       |       |  Q1,04 | PCWP |            |
+|  38 |                               JOIN FILTER CREATE             | :BF0000                        |  5739K|   328M|       |   993   (1)| 00:00:12 |       |       |  Q1,04 | PCWP |            |
+|  39 |                                PX RECEIVE                    |                                |  5739K|   328M|       |   993   (1)| 00:00:12 |       |       |  Q1,04 | PCWP |            |
+|  40 |                                 PX SEND HASH                 | :TQ10001                       |  5739K|   328M|       |   993   (1)| 00:00:12 |       |       |  Q1,01 | P->P | HASH       |
+|  41 |                                  NESTED LOOPS                |                                |  5739K|   328M|       |   993   (1)| 00:00:12 |       |       |  Q1,01 | PCWP |            |
+|  42 |                                   BUFFER SORT                |                                |       |       |       |            |          |       |       |  Q1,01 | PCWC |            |
+|  43 |                                    PX RECEIVE                |                                |       |       |       |            |          |       |       |  Q1,01 | PCWP |            |
+|  44 |                                     PX SEND BROADCAST        | :TQ10000                       |       |       |       |            |          |       |       |        | S->P | BROADCAST  |
+|  45 | OWID                                 TABLE ACCESS BY INDEX R | CONF_PARAM                     |     1 |    42 |       |     1   (0)| 00:00:01 |       |       |        |      |            |
+|* 46 |                                       INDEX UNIQUE SCAN      | PK_CONF_PARAM                  |     1 |       |       |     1   (0)| 00:00:01 |       |       |        |      |            |
+|  47 |                                   PX BLOCK ITERATOR          |                                |  5739K|    98M|       |   992   (1)| 00:00:12 |     1 |1048575|  Q1,01 | PCWC |            |
+|* 48 |                                    TABLE ACCESS FULL         | FCS_REPAY_DETAIL               |  5739K|    98M|       |   992   (1)| 00:00:12 |     1 |1048575|  Q1,01 | PCWP |            |
+|  49 |                               PX RECEIVE                     |                                |    24M|  1000M|       |  1650   (1)| 00:00:20 |       |       |  Q1,04 | PCWP |            |
+|  50 |                                PX SEND HASH                  | :TQ10002                       |    24M|  1000M|       |  1650   (1)| 00:00:20 |       |       |  Q1,02 | P->P | HASH       |
+|  51 |                                 JOIN FILTER USE              | :BF0000                        |    24M|  1000M|       |  1650   (1)| 00:00:20 |       |       |  Q1,02 | PCWP |            |
+|  52 |                                  PX BLOCK ITERATOR           |                                |    24M|  1000M|       |  1650   (1)| 00:00:20 |     1 |1048575|  Q1,02 | PCWC |            |
+|* 53 |                                   TABLE ACCESS FULL          | FCS_REPAY                      |    24M|  1000M|       |  1650   (1)| 00:00:20 |     1 |1048575|  Q1,02 | PCWP |            |
+|* 54 |                              INDEX RANGE SCAN                | IDX_FCS_REPAY_WRITEOFF_REPAYID |     1 |       |       |     0   (0)| 00:00:01 |       |       |  Q1,04 | PCWP |            |
+|  55 | ID                          TABLE ACCESS BY GLOBAL INDEX ROW | FCS_REPAY_WRITEOFF             |     2 |   116 |       |     0   (0)| 00:00:01 | ROWID | ROWID |  Q1,04 | PCWP |            |
+|* 56 |                       INDEX UNIQUE SCAN                      | UK_FCS_TXN                     |     1 |       |       |     0   (0)| 00:00:01 |       |       |  Q1,05 | PCWP |            |
+|  57 |                      TABLE ACCESS BY GLOBAL INDEX ROWID      | FCS_TXN                        |     1 |    15 |       |     0   (0)| 00:00:01 | ROWID | ROWID |  Q1,05 | PCWP |            |
+|  58 |                  PX RECEIVE                                  |                                |  4767K|   127M|       |   319   (0)| 00:00:04 |       |       |  Q1,08 | PCWP |            |
+|  59 |                   PX SEND HASH                               | :TQ10006                       |  4767K|   127M|       |   319   (0)| 00:00:04 |       |       |  Q1,06 | P->P | HASH       |
+|  60 |                    PX BLOCK ITERATOR                         |                                |  4767K|   127M|       |   319   (0)| 00:00:04 |       |       |  Q1,06 | PCWC |            |
+|  61 |                     TABLE ACCESS FULL                        | T_CREDIT_BANK_RECON_LOAN       |  4767K|   127M|       |   319   (0)| 00:00:04 |       |       |  Q1,06 | PCWP |            |
+|* 62 |                TABLE ACCESS BY INDEX ROWID                   | T_CREDIT_BANK_NJB_REPAY_PLAN   |    19M|   928M|       |     0   (0)| 00:00:01 |       |       |  Q1,08 | PCWP |            |
+|* 63 |                 INDEX RANGE SCAN                             | IDX_CREDIT_REPAY_ACCT_SEQ_SID  |    10 |       |       |     0   (0)| 00:00:01 |       |       |  Q1,08 | PCWP |            |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   1 - filter("RN">=:2)
+   2 - filter(ROWNUM<=:1)
+   6 - filter(ROWNUM<=:1)
+   9 - filter(ROWNUM<=:1)
+  10 - access("U"."CURR_PERIOD"(+)="from$_subquery$_016"."STAGE" AND "U"."BILL_ORDER_ID"(+)="from$_subquery$_016"."ACCT_SEQ")
+  20 - access("T"."ID"=TO_NUMBER("C"."LOAN_ID"(+)))
+  26 - filter("FRA"."ID" IS NULL)
+  27 - access("WO"."TXN_ID"="FRA"."TXN_ID"(+))
+  37 - access("RD"."REPAY_ID"="R"."ID")
+       filter("R"."REPAY_TIME">=TO_DATE("VALUE",'yyyy-mm-dd')-1 AND "R"."REPAY_TIME"<TO_DATE("VALUE",'yyyy-mm-dd'))
+  46 - access("NAME"='WORK_DATE')
+  48 - filter(TO_NUMBER("RD"."STATUS")=1 AND "RD"."IS_FINISHED"=0)
+  53 - filter(("R"."FUND_SRC"='11' OR "R"."FUND_SRC"='1101') AND SYS_OP_BLOOM_FILTER(:BF0000,"R"."ID"))
+  54 - access("RD"."ID"="WO"."REPAY_DETAIL_ID")
+  56 - access("WO"."TXN_ID"="T"."ID")
+  62 - filter("P"."CURRENT_PERIOD"(+)="WO"."STAGE")
+  63 - access("P"."ACCT_SEQ"(+)="C"."ACCT_SEQ")
+
+-------------------------------------------------------------------------------
+
+

@@ -1,0 +1,94 @@
+
+GENERAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+Tuning Task Name   : TASK_212000
+Tuning Task Owner  : DBASTEVE
+Workload Type      : Single SQL Statement
+Scope              : COMPREHENSIVE
+Time Limit(seconds): 900
+Completion Status  : COMPLETED
+Started at         : 09/28/2017 17:46:05
+Completed at       : 09/28/2017 17:47:11
+
+-------------------------------------------------------------------------------
+Schema Name: QRMCRD
+SQL ID     : fg54yntcbmyw6
+SQL Text   : SELECT *FROM wise.lm_transaction
+             WHERE TRUNC(crt_time)>=TRUNC(SYSDATE)-5
+
+-------------------------------------------------------------------------------
+FINDINGS SECTION (1 finding)
+-------------------------------------------------------------------------------
+
+1- SQL Profile Finding (see explain plans section below)
+--------------------------------------------------------
+  为此语句找到了性能更好的执行计划。
+
+  Recommendation (estimated benefit: 99.13%)
+  ------------------------------------------
+  - 考虑接受建议的 SQL 概要文件, 以便对此语句使用并行执行。
+    execute dbms_sqltune.accept_sql_profile(task_name => 'TASK_212000',
+            task_owner => 'DBASTEVE', replace => TRUE, profile_type =>
+            DBMS_SQLTUNE.PX_PROFILE);
+
+  与 DOP 128 并行执行此查询会使原始计划上的响应时间缩短 99.13%。但是, 启用并行执行时要付出一些代价。它将增加语句的资源消耗 (预计为
+  11.01%), 这会导致系统吞吐量降低。此外, 由于在非常短的持续时间内消耗了这些资源, 因此如果没有足够可用的硬件容量,
+  并发语句的响应时间将受到负面影响。
+
+  The following data shows some sampled statistics for this SQL from the past
+  week and projected weekly values when parallel execution is enabled.
+
+                                 Past week sampled statistics for this SQL
+                                 -----------------------------------------
+  Number of executions                                                   0
+  Percent of total activity                                              0
+  Percent of samples with #Active Sessions > 2*CPU                       0
+  Weekly DB time (in sec)                                                0
+
+                              Projected statistics with Parallel Execution
+                              --------------------------------------------
+  Weekly DB time (in sec)                                                0
+
+-------------------------------------------------------------------------------
+EXPLAIN PLANS SECTION
+-------------------------------------------------------------------------------
+
+1- Original
+-----------
+Plan hash value: 2804200985
+
+------------------------------------------------------------------------------------------------------
+| Id  | Operation           | Name           | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT    |                |  3385K|   904M|   777K  (1)| 02:35:31 |       |       |
+|   1 |  PARTITION RANGE ALL|                |  3385K|   904M|   777K  (1)| 02:35:31 |     1 |1048575|
+|*  2 |   TABLE ACCESS FULL | LM_TRANSACTION |  3385K|   904M|   777K  (1)| 02:35:31 |     1 |1048575|
+------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - filter(TRUNC(INTERNAL_FUNCTION("CRT_TIME"))>=TRUNC(SYSDATE@!)-5)
+
+2- Using Parallel Execution
+---------------------------
+Plan hash value: 1897361649
+
+------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation            | Name           | Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |    TQ  |IN-OUT| PQ Distrib |
+------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT     |                |  4085K|  1091M|  6744   (1)| 00:01:21 |       |       |        |      |            |
+|   1 |  PX COORDINATOR      |                |       |       |            |          |       |       |        |      |            |
+|   2 |   PX SEND QC (RANDOM)| :TQ10000       |  4085K|  1091M|  6744   (1)| 00:01:21 |       |       |  Q1,00 | P->S | QC (RAND)  |
+|   3 |    PX BLOCK ITERATOR |                |  4085K|  1091M|  6744   (1)| 00:01:21 |     1 |1048575|  Q1,00 | PCWC |            |
+|*  4 |     TABLE ACCESS FULL| LM_TRANSACTION |  4085K|  1091M|  6744   (1)| 00:01:21 |     1 |1048575|  Q1,00 | PCWP |            |
+------------------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   4 - filter(TRUNC(INTERNAL_FUNCTION("CRT_TIME"))>=TRUNC(SYSDATE@!)-5)
+
+-------------------------------------------------------------------------------
+
+
