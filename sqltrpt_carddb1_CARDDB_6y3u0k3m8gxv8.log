@@ -1,0 +1,181 @@
+
+GENERAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+Tuning Task Name   : TASK_218405
+Tuning Task Owner  : DBASTEVE
+Workload Type      : Single SQL Statement
+Scope              : COMPREHENSIVE
+Time Limit(seconds): 1800
+Completion Status  : COMPLETED
+Started at         : 10/20/2017 23:51:33
+Completed at       : 10/20/2017 23:54:08
+
+-------------------------------------------------------------------------------
+Schema Name: WISE
+SQL ID     : 6y3u0k3m8gxv8
+SQL Text   : UPDATE T_CREDIT_BANK_NJB_REPAY_PLAN t SET COST_FEE_ACC_STATUS =
+             'Y',COST_FEE_ACC_DATE = to_date(:1 ,'YYYY-MM-DD'),UPDATE_DATE =
+             sysdate  WHERE COST_FEE_ACC_STATUS = 'N' AND EXISTS(  SELECT
+             a.id FROM T_CREDIT_BANK_NJB_REPAY_PLAN a  LEFT JOIN
+             T_CREDIT_RECEIVE_PRINCIPAL b ON a.acct_seq = b.loan_receipt_no
+             AND b.work_date = to_date(:2 ,'YYYY-MM-DD')  WHERE
+             (b.loan_status IN ('a','e') OR a.work_date = a.START_DATE) AND
+             a.START_DATE = to_date(:3 ,'YYYY-MM-DD')  AND a.id = t.id  )
+Bind Variables :
+ 2 -  (VARCHAR2(128)):2017-10-20
+ 3 -  (VARCHAR2(128)):2017-10-20
+
+-------------------------------------------------------------------------------
+FINDINGS SECTION (2 findings)
+-------------------------------------------------------------------------------
+
+1- SQL Profile Finding (see explain plans section below)
+--------------------------------------------------------
+  为此语句找到了性能更好的执行计划。
+
+  Recommendation (estimated benefit: 10.98%)
+  ------------------------------------------
+  - 考虑接受推荐的 SQL 概要文件。
+    execute dbms_sqltune.accept_sql_profile(task_name => 'TASK_218405',
+            task_owner => 'DBASTEVE', replace => TRUE);
+
+2- Index Finding (see explain plans section below)
+--------------------------------------------------
+  通过创建一个或多个索引可以改进此语句的执行计划。
+
+  Recommendation (estimated benefit: 81.26%)
+  ------------------------------------------
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index WISE.IDX$$_355250001 on WISE.T_CREDIT_BANK_NJB_REPAY_PLAN("STA
+    RT_DATE");
+
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index WISE.IDX$$_355250002 on WISE.T_CREDIT_BANK_NJB_REPAY_PLAN("COS
+    T_FEE_ACC_STATUS","ID");
+
+  - 考虑运行可以改进物理方案设计的访问指导或者创建推荐的索引。
+    create index WISE.IDX$$_355250004 on WISE.T_CREDIT_RECEIVE_PRINCIPAL("WORK_
+    DATE","LOAN_STATUS","LOAN_RECEIPT_NO");
+
+  Rationale
+  ---------
+    创建推荐的索引可以显著地改进此语句的执行计划。但是, 使用典型的 SQL 工作量运行 "访问指导"
+    可能比单个语句更可取。通过这种方法可以获得全面的索引建议案, 包括计算索引维护的开销和附加的空间消耗。
+
+-------------------------------------------------------------------------------
+ADDITIONAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+- 优化程序不能合并位于执行计划的行 ID 4 处的视图。
+
+-------------------------------------------------------------------------------
+EXPLAIN PLANS SECTION
+-------------------------------------------------------------------------------
+
+1- Original With Adjusted Cost
+------------------------------
+Plan hash value: 3098481858
+
+-------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                          | Name                         | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------------------------------------------
+|   0 | UPDATE STATEMENT                   |                              | 18852 |   570K|   123K  (1)| 00:24:40 |
+|   1 |  UPDATE                            | T_CREDIT_BANK_NJB_REPAY_PLAN |       |       |            |          |
+|   2 |   NESTED LOOPS                     |                              | 18852 |   570K|   123K  (1)| 00:24:40 |
+|   3 |    NESTED LOOPS                    |                              |   124K|   570K|   123K  (1)| 00:24:40 |
+|   4 |     VIEW                           | VW_SQ_1                      |   124K|  1581K|   104K  (1)| 00:20:49 |
+|   5 |      SORT UNIQUE                   |                              |   124K|  8761K|            |          |
+|*  6 |       FILTER                       |                              |       |       |            |          |
+|   7 |        NESTED LOOPS OUTER          |                              |   124K|  8761K|   104K  (1)| 00:20:49 |
+|*  8 |         TABLE ACCESS FULL          | T_CREDIT_BANK_NJB_REPAY_PLAN | 88502 |  3543K| 90748   (1)| 00:18:09 |
+|*  9 |         TABLE ACCESS BY INDEX ROWID| T_CREDIT_RECEIVE_PRINCIPAL   |    40 |  1240 |     1   (0)| 00:00:01 |
+|* 10 |          INDEX RANGE SCAN          | INDEX_RECEIVE_PRIN_ORDERID   |     1 |       |     1   (0)| 00:00:01 |
+|* 11 |     INDEX UNIQUE SCAN              | PK_NJB_REPAY_PLAN            |     1 |       |     1   (0)| 00:00:01 |
+|* 12 |    TABLE ACCESS BY INDEX ROWID     | T_CREDIT_BANK_NJB_REPAY_PLAN |     1 |    18 |     1   (0)| 00:00:01 |
+-------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   6 - filter("B"."LOAN_STATUS"='a' OR "B"."LOAN_STATUS"='e' OR "A"."WORK_DATE"="A"."START_DATE")
+   8 - filter("A"."START_DATE"=TO_DATE(:3,'YYYY-MM-DD'))
+   9 - filter("B"."WORK_DATE"(+)=TO_DATE(:2,'YYYY-MM-DD'))
+  10 - access("A"."ACCT_SEQ"="B"."LOAN_RECEIPT_NO"(+))
+  11 - access("ITEM_1"="T"."ID")
+  12 - filter("COST_FEE_ACC_STATUS"='N')
+
+2- Using SQL Profile
+--------------------
+Plan hash value: 495738815
+
+----------------------------------------------------------------------------------------------------------------
+| Id  | Operation                       | Name                         | Rows  | Bytes | Cost (%CPU)| Time     |
+----------------------------------------------------------------------------------------------------------------
+|   0 | UPDATE STATEMENT                |                              | 18852 |   331K|   109K  (1)| 00:21:58 |
+|   1 |  UPDATE                         | T_CREDIT_BANK_NJB_REPAY_PLAN |       |       |            |          |
+|*  2 |   FILTER                        |                              |       |       |            |          |
+|*  3 |    TABLE ACCESS FULL            | T_CREDIT_BANK_NJB_REPAY_PLAN | 18852 |   331K| 90787   (1)| 00:18:10 |
+|*  4 |    FILTER                       |                              |       |       |            |          |
+|   5 |     NESTED LOOPS OUTER          |                              |     1 |    72 |     2   (0)| 00:00:01 |
+|*  6 |      TABLE ACCESS BY INDEX ROWID| T_CREDIT_BANK_NJB_REPAY_PLAN |     1 |    41 |     1   (0)| 00:00:01 |
+|*  7 |       INDEX UNIQUE SCAN         | PK_NJB_REPAY_PLAN            |     1 |       |     1   (0)| 00:00:01 |
+|*  8 |      TABLE ACCESS BY INDEX ROWID| T_CREDIT_RECEIVE_PRINCIPAL   |     1 |    31 |     1   (0)| 00:00:01 |
+|*  9 |       INDEX RANGE SCAN          | INDEX_RECEIVE_PRIN_ORDERID   |     1 |       |     1   (0)| 00:00:01 |
+----------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   2 - filter( EXISTS (SELECT /*+ OPT_ESTIMATE (TABLE "B" SCALE_ROWS=91.882563 ) OPT_ESTIMATE (TABLE
+              "A" SCALE_ROWS=177003.417500 ) */ 0 FROM "T_CREDIT_RECEIVE_PRINCIPAL"
+              "B","T_CREDIT_BANK_NJB_REPAY_PLAN" "A" WHERE "A"."ID"=:B1 AND "A"."START_DATE"=TO_DATE(:3,'YYYY-MM-DD')
+              AND "A"."ACCT_SEQ"="B"."LOAN_RECEIPT_NO"(+) AND (("B"."LOAN_STATUS"='a' OR "B"."LOAN_STATUS"='e') OR
+              "A"."WORK_DATE"="A"."START_DATE") AND "B"."WORK_DATE"(+)=TO_DATE(:2,'YYYY-MM-DD')))
+   3 - filter("COST_FEE_ACC_STATUS"='N')
+   4 - filter("B"."LOAN_STATUS"='a' OR "B"."LOAN_STATUS"='e' OR "A"."WORK_DATE"="A"."START_DATE")
+   6 - filter("A"."START_DATE"=TO_DATE(:3,'YYYY-MM-DD'))
+   7 - access("A"."ID"=:B1)
+   8 - filter("B"."WORK_DATE"(+)=TO_DATE(:2,'YYYY-MM-DD'))
+   9 - access("A"."ACCT_SEQ"="B"."LOAN_RECEIPT_NO"(+))
+
+3- Using New Indices
+--------------------
+Plan hash value: 3648880689
+
+---------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                          | Name                         | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     |
+---------------------------------------------------------------------------------------------------------------------------
+|   0 | UPDATE STATEMENT                   |                              | 18852 |  2706K|       | 20563   (1)| 00:04:07 |
+|   1 |  UPDATE                            | T_CREDIT_BANK_NJB_REPAY_PLAN |       |       |       |            |          |
+|   2 |   NESTED LOOPS                     |                              | 18852 |  2706K|       | 20563   (1)| 00:04:07 |
+|   3 |    VIEW                            | VW_SQ_1                      |   108K|  1378K|       |  3750   (1)| 00:00:45 |
+|   4 |     SORT UNIQUE                    |                              |   108K|  7636K|       |            |          |
+|   5 |      CONCATENATION                 |                              |       |       |       |            |          |
+|*  6 |       HASH JOIN OUTER              |                              |   106K|  7515K|       |    24  (21)| 00:00:01 |
+|*  7 |        TABLE ACCESS BY INDEX ROWID | T_CREDIT_BANK_NJB_REPAY_PLAN |  2681 |   107K|       |     1   (0)| 00:00:01 |
+|*  8 |         INDEX RANGE SCAN           | IDX$$_355250001              |     1 |       |       |     1   (0)| 00:00:01 |
+|*  9 |        INDEX RANGE SCAN            | IDX$$_355250004              |  1712K|    50M|       |    18   (0)| 00:00:01 |
+|* 10 |       FILTER                       |                              |       |       |       |            |          |
+|* 11 |        HASH JOIN OUTER             |                              |  1716 |   120K|  4448K|  3726   (1)| 00:00:45 |
+|* 12 |         TABLE ACCESS BY INDEX ROWID| T_CREDIT_BANK_NJB_REPAY_PLAN | 85821 |  3436K|       |     1   (0)| 00:00:01 |
+|* 13 |          INDEX RANGE SCAN          | IDX$$_355250001              |     1 |       |       |     1   (0)| 00:00:01 |
+|* 14 |         INDEX RANGE SCAN           | IDX$$_355250004              |  1712K|    50M|       |    18   (0)| 00:00:01 |
+|* 15 |    INDEX RANGE SCAN                | IDX$$_355250002              |     1 |   134 |       |     1   (0)| 00:00:01 |
+---------------------------------------------------------------------------------------------------------------------------
+
+Predicate Information (identified by operation id):
+---------------------------------------------------
+
+   6 - access("A"."ACCT_SEQ"="B"."LOAN_RECEIPT_NO"(+))
+   7 - filter("A"."WORK_DATE"="A"."START_DATE")
+   8 - access("A"."START_DATE"=TO_DATE(:3,'YYYY-MM-DD'))
+   9 - access("B"."WORK_DATE"(+)=TO_DATE(:2,'YYYY-MM-DD'))
+  10 - filter("B"."LOAN_STATUS"='a' OR "B"."LOAN_STATUS"='e')
+  11 - access("A"."ACCT_SEQ"="B"."LOAN_RECEIPT_NO"(+))
+  12 - filter(LNNVL("A"."WORK_DATE"="A"."START_DATE"))
+  13 - access("A"."START_DATE"=TO_DATE(:3,'YYYY-MM-DD'))
+  14 - access("B"."WORK_DATE"(+)=TO_DATE(:2,'YYYY-MM-DD'))
+  15 - access("COST_FEE_ACC_STATUS"='N' AND "ITEM_1"="T"."ID")
+
+-------------------------------------------------------------------------------
+
+
